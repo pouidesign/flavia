@@ -136,10 +136,11 @@ span.day { width: 28px; height: 28px; font-size: 12px; } .days.ro { margin-botto
 .toast.out { opacity: 0; }
 
 /* ---------- Agenda ---------- */
-.lateral { display: grid; grid-template-columns: 34px 1fr 34px; gap: 6px; align-items: start; }
-.side-nav { position: sticky; top: 40vh; height: 72px; border: 0; background: var(--material-bar); -webkit-backdrop-filter: var(--material-blur); backdrop-filter: var(--material-blur); border-radius: var(--r-md); font-size: 26px; color: var(--tint); padding: 0; box-shadow: var(--shadow-card); }
-.side-nav:active { background: var(--fill); }
+.lateral { touch-action: pan-y; user-select: none; -webkit-user-select: none; min-height: 55dvh; }
 .lateral-body { min-width: 0; }
+.lateral-body.in-next { animation: in-next var(--dur) var(--ease-out); } .lateral-body.in-prev { animation: in-prev var(--dur) var(--ease-out); }
+@keyframes in-next { from { transform: translateX(28px); opacity: 0; } } @keyframes in-prev { from { transform: translateX(-28px); opacity: 0; } }
+.swipe-hint { text-align: center; font: var(--type-caption-1); color: var(--label-3); margin: -10px 0 var(--s-4); }
 .period { font: var(--type-title-2); letter-spacing: var(--tracking-title); text-align: center; margin: 2px 0 var(--s-4); }
 .period::first-letter, .mood-nav h2::first-letter { text-transform: uppercase; }
 .week { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--s-2); }
@@ -158,7 +159,7 @@ span.day { width: 28px; height: 28px; font-size: 12px; } .days.ro { margin-botto
 .chip-mini.ev { background: color-mix(in srgb, var(--sys-pink) 24%, transparent); } .chip-mini.done { text-decoration: line-through; opacity: .6; }
 .more { font: var(--type-caption-2); color: var(--label-2); }
 @media (max-width: 560px) {
-  .view { padding-inline: 10px; } .lateral { grid-template-columns: 26px 1fr 26px; gap: 4px; } .side-nav { font-size: 22px; }
+  .view { padding-inline: 10px; }
   .chip-mini { font-size: 0; height: 5px; padding: 0; } .cell { min-height: 58px; } .view-head { flex-direction: column; align-items: stretch; }
 }
 

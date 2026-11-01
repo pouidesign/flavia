@@ -12,6 +12,7 @@ const ICON = { compromisso: 'pin', aniversario: 'cake', data: 'star' };
 export function renderAgenda(root) { host = root; draw(); }
 
 function go(n) {
+  dir = n;
   cursor = view === 'day' ? addDays(cursor, n) : view === 'week' ? addDays(cursor, 7 * n) : addMonths(cursor, n);
   draw();
 }
@@ -27,17 +28,16 @@ function title() {
   return fmtMonth(cursor);
 }
 
+let dir = 0;   // sentido da última navegação (anima a entrada)
+const UNIT = { day: 'dia', week: 'semana', month: 'mês' };
+
 function draw() {
-  const lateral = h('div', { class: 'lateral' },
-    h('button', { class: 'side-nav', 'aria-label': 'Anterior', onclick: () => go(-1) }, '‹'),
-    h('div', { class: 'lateral-body' }, h('h2', { class: 'period' }, title()), view === 'day' ? dayBody() : view === 'week' ? weekBody() : monthBody()),
-    h('button', { class: 'side-nav', 'aria-label': 'Próximo', onclick: () => go(1) }, '›'));
-  let x0 = 0, y0 = 0;
-  lateral.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
-  lateral.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
-    if (Math.abs(dx) > 70 && Math.abs(dy) < 45) go(dx < 0 ? 1 : -1);
-  });
+  const body = h('div', { class: 'lateral-body' + (dir ? (dir > 0 ? ' in-next' : ' in-prev') : '') },
+    h('h2', { class: 'period' }, title()),
+    h('p', { class: 'swipe-hint' }, `Deslize para os lados para mudar de ${UNIT[view]}`),
+    view === 'day' ? dayBody() : view === 'week' ? weekBody() : monthBody());
+  dir = 0;
+  const lateral = h('div', { class: 'lateral', onpointerdown: swipeStart }, body);
   host.replaceChildren(h('div', { class: 'view-agenda' },
     h('div', { class: 'toolbar' },
       segmented([['day', 'Dia'], ['week', 'Semana'], ['month', 'Mês']], view, k => { view = k; draw(); }),
@@ -45,6 +45,24 @@ function draw() {
     lateral,
     h('button', { class: 'fab', 'aria-label': 'Adicionar', onclick: addMenu }, '+')));
 }
+
+/* Arrastar (dedo ou mouse) para os lados troca de dia/semana/mês */
+const sw = { id: null, x: 0, y: 0, moved: false };
+function swipeStart(e) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (e.target.closest('input,textarea,select')) return;
+  Object.assign(sw, { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false });
+}
+window.addEventListener('pointermove', e => { if (e.pointerId === sw.id && Math.abs(e.clientX - sw.x) > 12) sw.moved = true; });
+window.addEventListener('pointerup', e => {
+  if (e.pointerId !== sw.id) return;
+  sw.id = null;
+  const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+});
+window.addEventListener('pointercancel', () => { sw.id = null; });
+// depois de arrastar, não deixa o "clique" abrir o item que estava embaixo
+window.addEventListener('click', e => { if (sw.moved && e.target.closest?.('.lateral')) { e.stopPropagation(); e.preventDefault(); } sw.moved = false; }, true);
 
 function addMenu() {
   sheet('Adicionar em ' + fmtShort(cursor), [
