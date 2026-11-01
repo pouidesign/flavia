@@ -266,3 +266,16 @@ h2 svg.i, h3 svg.i { vertical-align: -.15em; }
 /* iOS: campos com 16px+ evitam zoom automático ao focar */
 .select.tiny { font-size: 16px; }
 @media (display-mode: standalone) { .topbar { padding-top: max(var(--s-3), env(safe-area-inset-top)); } }
+
+/* ---------- Conta / nuvem ---------- */
+.top-actions { display: flex; gap: 2px; }
+.cloud-btn { position: relative; color: var(--label-2); }
+.cloud-btn::after { content: ''; position: absolute; right: 8px; top: 8px; width: 9px; height: 9px; border-radius: 50%; background: transparent; box-shadow: 0 0 0 2px var(--bg-grouped); }
+.cloud-btn[data-s=ok] { color: var(--tint); } .cloud-btn[data-s=ok]::after { background: var(--success); }
+.cloud-btn[data-s=busy]::after { background: var(--sys-blue); animation: pulse 1s infinite; }
+.cloud-btn[data-s=offline]::after, .cloud-btn[data-s=conflict]::after { background: var(--warning); }
+.cloud-btn[data-s=error]::after { background: var(--danger); }
+@keyframes pulse { 50% { opacity: .3; } }
+.acc-email { font: var(--type-headline); overflow-wrap: anywhere; }
+.conflict { display: flex; flex-direction: column; gap: 2px; }
+.form-foot .btn { flex: none; }

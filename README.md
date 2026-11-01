@@ -18,3 +18,10 @@ Abra http://localhost:8000
 
 ## Design system
 Veja `DESIGN.md` e abra `design-system.html`. Tokens em `css/tokens.css`.
+
+## Salvar na nuvem (Supabase)
+- Login por e-mail e senha pelo ícone de nuvem no topo do app. Cada mudança é salva no aparelho na hora e enviada em segundo plano.
+- Ao entrar em outro aparelho, o progresso é baixado. Se os dois lados mudaram, o app pergunta qual manter.
+- Banco: rode `supabase/schema.sql` no SQL Editor do projeto. Chaves públicas em `js/config.js`.
+- No Supabase, em Authentication → Sign In / Providers → Email, desligue **Confirm email**.
+- Só funciona a partir de um endereço https próprio (não funciona dentro do artefato do Claude).

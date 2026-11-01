@@ -1,5 +1,6 @@
 import { h, svg, openModal, toast, ask } from './ui.js';
 import { icon } from './icons.js';
+import * as cloud from './sync.js';
 import { state, onChange, replaceState, resetState } from './store.js';
 import { renderAgenda } from './agenda.js';
 import { renderPlan } from './plan.js';
@@ -56,6 +57,64 @@ function exportBackup() {
       } }, 'Baixar arquivo'))));
 }
 
+/* ---------- Conta e sincronização ---------- */
+const ago = iso => { if (!iso) return 'ainda não sincronizou'; const s = Math.max(0, (Date.now() - new Date(iso)) / 1000);
+  return s < 45 ? 'agora há pouco' : s < 3600 ? `há ${Math.round(s / 60)} min` : s < 86400 ? `há ${Math.round(s / 3600)} h` : new Date(iso).toLocaleDateString('pt-BR'); };
+const STATUS_TXT = { ok: 'Tudo salvo na nuvem', busy: 'Sincronizando…', offline: 'Sem conexão', error: 'Atenção', conflict: 'Dados diferentes', off: 'Sem login' };
+
+function openAccount() {
+  const info = cloud.getStatus();
+  if (info.loggedIn) {
+    const line = h('p', {}), msg = h('p', { class: 'muted small' });
+    const paint = () => { const s = cloud.getStatus(); line.textContent = `${STATUS_TXT[s.status]} · ${ago(s.lastSync)}`; msg.textContent = s.msg; };
+    paint(); const off = cloud.onStatus(paint);
+    const close = openModal('Conta', h('div', { class: 'form' },
+      h('p', { class: 'muted small' }, 'Conectada como'), h('p', { class: 'acc-email' }, info.email), line, msg,
+      h('p', { class: 'hint' }, 'Seu progresso é salvo neste aparelho na hora e enviado para a nuvem em seguida. Em outro aparelho, entre com o mesmo e-mail.'),
+      h('div', { class: 'form-foot' },
+        h('button', { type: 'button', class: 'btn danger', onclick: async () => { if (await ask('Sair desta conta? Os dados continuam neste aparelho e na nuvem.', 'Sair')) { off(); close(); cloud.signOut(); } } }, 'Sair'),
+        h('span', { class: 'grow' }),
+        h('button', { type: 'button', class: 'btn primary', onclick: () => cloud.sync({ manual: true }) }, 'Sincronizar agora'))));
+    return;
+  }
+  const email = h('input', { id: 'acc-email', type: 'email', autocomplete: 'email', placeholder: 'voce@email.com', inputMode: 'email', autocapitalize: 'off' });
+  const pass = h('input', { id: 'acc-pass', type: 'password', autocomplete: 'current-password', placeholder: 'Mínimo 6 caracteres' });
+  const err = h('p', { class: 'err' }), ok = h('p', { class: 'hint' });
+  ok.hidden = true;
+  const run = async fn => {
+    err.textContent = ''; ok.hidden = true;
+    if (!email.value.trim() || !pass.value) { err.textContent = 'Preencha e-mail e senha.'; return; }
+    btns.forEach(b => b.disabled = true);
+    try { const r = await fn(email.value.trim(), pass.value);
+      if (r === 'confirm') { ok.hidden = false; ok.textContent = 'Conta criada. Confirme o e-mail que enviamos e depois toque em Entrar.'; }
+      else close();
+    } catch (e) { err.textContent = cloud.friendly(e); } finally { btns.forEach(b => b.disabled = false); }
+  };
+  const enter = h('button', { type: 'submit', class: 'btn primary' }, 'Entrar');
+  const create = h('button', { type: 'button', class: 'btn', onclick: () => run(cloud.signUp) }, 'Criar conta');
+  const btns = [enter, create];
+  const form = h('form', { class: 'form', novalidate: true, onsubmit: e => { e.preventDefault(); run(cloud.signIn); } },
+    h('p', { class: 'hint' }, 'Entre para salvar seu progresso na nuvem e usar em mais de um aparelho. Os dados deste aparelho continuam aqui.'),
+    h('label', { class: 'field' }, h('span', { class: 'lbl' }, 'E-mail'), email),
+    h('label', { class: 'field' }, h('span', { class: 'lbl' }, 'Senha'), pass), err, ok,
+    h('div', { class: 'form-foot' }, create, h('span', { class: 'grow' }), enter));
+  const close = openModal('Entrar na nuvem', form);
+}
+
+cloud.setConflictHandler(({ local, cloud: remote }) => new Promise(resolve => {
+  let done = false, close = () => {};
+  const finish = v => { if (done) return; done = true; close(); resolve(v); };
+  close = openModal('Dados diferentes', h('div', { class: 'form' },
+    h('p', {}, 'Este aparelho e a nuvem têm dados diferentes. Qual manter? O outro será substituído.'),
+    h('div', { class: 'card conflict' }, h('b', {}, 'Neste aparelho'), h('p', { class: 'muted small' }, local)),
+    h('div', { class: 'card conflict' }, h('b', {}, 'Na nuvem'), h('p', { class: 'muted small' }, remote)),
+    h('div', { class: 'form-foot' },
+      h('button', { type: 'button', class: 'btn ghost', onclick: () => finish('later') }, 'Decidir depois'),
+      h('span', { class: 'grow' }),
+      h('button', { type: 'button', class: 'btn', onclick: () => finish('local') }, 'Manter este aparelho'),
+      h('button', { type: 'button', class: 'btn primary', onclick: () => finish('cloud') }, 'Manter a nuvem'))));
+}));
+
 function settings() {
   const file = h('input', { type: 'file', accept: 'application/json', hidden: true, onchange: async e => {
     const f = e.target.files[0]; if (!f) return;
@@ -76,8 +135,10 @@ function settings() {
 }
 
 document.getElementById('app').append(
-  h('header', { class: 'topbar' }, h('h1', {}, 'Minha Vida'), h('button', { class: 'icon-btn', 'aria-label': 'Dados e backup', onclick: settings }, icon('gear', 24))),
+  h('header', { class: 'topbar' }, h('h1', {}, 'Minha Vida'), h('div', { class: 'top-actions' }, h('button', { class: 'icon-btn cloud-btn', id: 'cloud-btn', 'aria-label': 'Conta e sincronização', onclick: openAccount }, icon('cloud', 24)), h('button', { class: 'icon-btn', 'aria-label': 'Dados e backup', onclick: settings }, icon('gear', 24)))),
   main, bar);
 draw();
+const paintCloud = () => { const b = document.getElementById('cloud-btn'); if (b) { const s = cloud.getStatus(); b.dataset.s = s.status; b.title = STATUS_TXT[s.status]; } };
+cloud.onStatus(paintCloud); cloud.init(); paintCloud();
 
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});

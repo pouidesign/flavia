@@ -26,11 +26,20 @@ function load() {
 
 export const state = load();
 const listeners = [];
+let saveHook = null;
+/** Chamado a cada gravação (a sincronização usa isto). */
+export function setSaveHook(f) { saveHook = f; }
+/** Há algum dado do usuário (além do padrão)? */
+export function hasData() {
+  return ['goals', 'tasks', 'events', 'habits', 'routines', 'notes', 'boards'].some(k => state[k]?.length)
+    || Object.keys(state.moods || {}).length > 0 || Object.keys(state.journal || {}).length > 0;
+}
 
 /** Grava sem redesenhar (digitação, arrastar). */
 export function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); }
   catch { document.dispatchEvent(new CustomEvent('flavia:save-failed')); }
+  saveHook?.();
 }
 /** Grava e redesenha a aba atual. */
 export function commit() { save(); listeners.forEach(f => f()); }
