@@ -42,7 +42,9 @@ Referência visual interativa: abra `design-system.html`. Fonte dos tokens: `css
 - Novo componente → só com tokens; documente aqui e na página de referência.
 - Cores de dados (área, humor) são guardadas como `var(--sys-*)`, então acompanham o tema.
 
+## Ícones e tamanho de texto
+- Barra de abas usa ícones de traço (SVG, grade 24, `stroke: currentColor`) no estilo SF Symbols; defina novos em `ICONS` (`js/main.js`).
+- **Dynamic Type:** os tokens `--type-*` usam `rem × --dt`. Acompanham a preferência de fonte do navegador e o ajuste manual em ⚙️ → Tamanho do texto (Pequeno .9 · Padrão 1 · Grande 1.15 · Maior 1.3). Não use `px` para texto.
+
 ## Pendências sugeridas
-- Trocar emojis dos ícones da barra de abas por ícones de traço no estilo SF Symbols.
-- Dynamic Type real (escala por preferência do usuário).
 - Cores de área já salvas em hexadecimal continuam funcionando, mas não mudam com o tema.

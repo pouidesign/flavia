@@ -66,7 +66,7 @@
   <div class="swatches-grid" id="moods"></div>
 
   <h2 id="tipografia">Tipografia</h2>
-  <p class="lead">SF Pro (via <code>-apple-system</code>) com a escala do Dynamic Type. Pesos: regular (400), semibold (600) e bold (700). Tamanho do texto de corpo: 17px.</p>
+  <p class="lead">SF Pro (via <code>-apple-system</code>) com a escala do Dynamic Type. Pesos: regular (400), semibold (600) e bold (700). Corpo: 17px. Os tamanhos escalam com <code>--dt</code> e com a preferência de fonte do navegador (Dynamic Type); teste em ⚙️ → Tamanho do texto no app.</p>
   <div class="rows" id="types"></div>
 
   <h2 id="espaco">Espaço, cantos e movimento</h2>
@@ -113,8 +113,8 @@
   <h3 class="muted small" style="margin:var(--s-4) 0 var(--s-2)">Barra de abas (material translúcido)</h3>
   <div class="demo" style="background:linear-gradient(135deg,var(--sys-indigo),var(--sys-pink));padding:var(--s-8) var(--s-4) var(--s-4)">
     <nav class="tabbar bar-demo" style="position:static;display:flex">
-      <button class="tab on"><span class="ico">📅</span><span>Agenda</span></button><button class="tab"><span class="ico">🎯</span><span>Planejar</span></button>
-      <button class="tab"><span class="ico">🧭</span><span>Áreas</span></button><button class="tab"><span class="ico">✍️</span><span>Notas</span></button><button class="tab"><span class="ico">🌙</span><span>Humor</span></button>
+      <button class="tab on" id="d0"><span>Agenda</span></button><button class="tab" id="d1"><span>Planejar</span></button>
+      <button class="tab" id="d2"><span>Áreas</span></button><button class="tab" id="d3"><span>Notas</span></button><button class="tab" id="d4"><span>Humor</span></button>
     </nav></div>
 
   <h2 id="padroes">Padrões e regras</h2>
@@ -144,6 +144,10 @@
   document.getElementById('spaces').innerHTML = [[1,4],[2,8],[3,12],[4,16],[5,20],[6,24],[8,32],[10,40]].map(([k,v]) => `<div class="stack"><code style="width:92px">--s-${k} · ${v}px</code><div class="space-bar" style="width:${v*4}px"></div></div>`).join('');
   document.getElementById('radii').innerHTML = [['xs',6],['sm',10],['md',12],['lg',16],['xl',22],['sheet',28],['capsule',999]].map(([k,v]) => `<div class="radius-box" style="border-radius:var(--r-${k})">--r-${k}<br>${v==999?'∞':v+'px'}</div>`).join('');
   draw();
+  const P = [['<rect class="fl" x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'],['<circle cx="12" cy="12" r="8.5"/><circle class="fl" cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/>'],
+    ['<circle cx="12" cy="12" r="8.5"/><path class="fl" d="M15.8 8.2l-2 5.6-5.6 2 2-5.6z"/>'],['<path d="M11 4H7.5A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5V13"/><path class="fl" d="M18.2 3.6l2.2 2.2-8.2 8.2-3 .8.8-3z"/>'],
+    ['<path class="fl" d="M20 14.2A8.3 8.3 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2z"/>']];
+  P.forEach((p, i) => document.getElementById('d' + i).insertAdjacentHTML('afterbegin', '<svg viewBox="0 0 24 24" aria-hidden="true">' + p[0] + '</svg>'));
   const root = document.documentElement;
   document.getElementById('theme').addEventListener('click', e => {
     const t = e.target.dataset.t; if (!t) return;

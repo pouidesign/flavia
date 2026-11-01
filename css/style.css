@@ -15,19 +15,19 @@ h1, h2, h3, p { margin: 0; }
 .view { padding: var(--s-2) var(--gutter) var(--s-6); }
 .tabbar { position: fixed; inset: auto 0 0 0; z-index: 20; display: flex; justify-content: center; padding: var(--s-1) var(--s-2) env(safe-area-inset-bottom);
   background: var(--material-bar); -webkit-backdrop-filter: var(--material-blur); backdrop-filter: var(--material-blur); border-top: .5px solid var(--hairline); }
-.tab { flex: 1; max-width: 120px; min-height: var(--tabbar-h); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+.tab { flex: 1; max-width: 120px; min-height: var(--tabbar-h); padding: 4px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
   border: 0; background: none; font: var(--type-caption-2); font-weight: 500; color: var(--label-2); transition: color var(--dur-fast); }
-.tab .ico { font-size: 24px; line-height: 1.1; filter: grayscale(1); opacity: .75; transition: filter var(--dur-fast), opacity var(--dur-fast), transform var(--dur) var(--ease-spring); }
-.tab.on { color: var(--tint); } .tab.on .ico { filter: none; opacity: 1; transform: scale(1.08); }
+.tab svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: transform var(--dur) var(--ease-spring); }
+.tab.on { color: var(--tint); } .tab.on svg { transform: scale(1.08); stroke-width: 2; } .tab.on svg .fl { fill: color-mix(in srgb, var(--tint) 20%, transparent); }
 
 /* ---------- Botões ---------- */
-.btn { position: relative; min-height: var(--hit); padding: 0 var(--s-5); border: 0; border-radius: var(--r-capsule); font: var(--type-headline); font-size: 16px;
+.btn { position: relative; min-height: var(--hit); padding: 0 var(--s-5); border: 0; border-radius: var(--r-capsule); font: var(--type-callout); font-weight: 600;
   background: color-mix(in srgb, var(--tint) 14%, transparent); color: var(--tint); transition: transform var(--dur-fast) var(--ease-out), filter var(--dur-fast); }
 .btn:active { transform: scale(.97); filter: brightness(.92); }
 .btn.primary { background: var(--tint); color: var(--tint-ink); }
 .btn.ghost { background: transparent; color: var(--tint); padding-inline: var(--s-3); }
 .btn.danger { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
-.btn.sm { min-height: 34px; padding: 0 var(--s-3); font-size: 14px; font-weight: 500; }
+.btn.sm { min-height: 34px; padding: 0 var(--s-3); font: var(--type-subhead); font-weight: 500; }
 .btn.sm::after { content: ''; position: absolute; inset: -5px -2px; }
 .icon-btn { width: var(--hit); height: var(--hit); border: 0; background: transparent; border-radius: 50%; font-size: 22px; color: var(--tint); display: grid; place-items: center; }
 .icon-btn:active { background: var(--fill); }
@@ -42,10 +42,10 @@ textarea { resize: vertical; line-height: 1.4; }
 
 /* ---------- Segmented control ---------- */
 .seg, .subtabs { display: inline-flex; background: var(--fill); border-radius: 9px; padding: 2px; gap: 2px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
-.seg button, .subtabs button { min-height: 32px; border: 0; background: transparent; padding: 0 var(--s-4); border-radius: 7px; white-space: nowrap; font: var(--type-footnote); font-size: 13px; font-weight: 500;
+.seg button, .subtabs button { min-height: 32px; border: 0; background: transparent; padding: 0 var(--s-4); border-radius: 7px; white-space: nowrap; font: var(--type-footnote); font-weight: 500;
   transition: background var(--dur-fast), box-shadow var(--dur-fast); }
 .seg button.on, .subtabs button.on { background: var(--segment-thumb); font-weight: 600; box-shadow: var(--shadow-thumb); }
-.subtabs { display: flex; margin: var(--s-1) 0 var(--s-4); } .subtabs button { flex: 1; min-height: 34px; font-size: 14px; }
+.subtabs { display: flex; margin: var(--s-1) 0 var(--s-4); } .subtabs button { flex: 1; min-height: 34px; font: var(--type-subhead); font-weight: 500; }
 .toolbar { display: flex; gap: var(--s-2); align-items: center; justify-content: space-between; flex-wrap: wrap; margin: var(--s-1) 0 var(--s-3); }
 .view-head { display: flex; gap: var(--s-3); align-items: center; justify-content: space-between; margin-bottom: var(--s-4); }
 .view-head p { font: var(--type-footnote); }
@@ -212,7 +212,7 @@ span.day { width: 28px; height: 28px; font-size: 12px; } .days.ro { margin-botto
 .cv-top { display: flex; gap: var(--s-2); align-items: center; }
 .cv-name { flex: 1; font: var(--type-headline); border: 0; background: transparent; padding: 6px; min-width: 0; }
 .cv-tools { display: flex; gap: 4px; align-items: center; overflow-x: auto; padding: var(--s-1); background: var(--material-bar); -webkit-backdrop-filter: var(--material-blur); backdrop-filter: var(--material-blur); border-radius: var(--r-lg); scrollbar-width: none; }
-.tb { flex: none; min-height: 36px; border: 0; background: transparent; border-radius: var(--r-sm); padding: 0 var(--s-3); white-space: nowrap; font: var(--type-footnote); font-size: 14px; }
+.tb { flex: none; min-height: 36px; border: 0; background: transparent; border-radius: var(--r-sm); padding: 0 var(--s-3); white-space: nowrap; font: var(--type-subhead); }
 .tb.on { background: var(--tint); color: var(--tint-ink); } .tb.add { background: var(--fill); }
 .tb-sep { width: .5px; align-self: stretch; background: var(--separator); margin: 0 4px; flex: none; }
 .pen { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid transparent; padding: 0; } .pen.on { border-color: var(--label); }
