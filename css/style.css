@@ -1,7 +1,7 @@
 /* Minha Vida · componentes — usa apenas tokens de tokens.css */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
-body { margin: 0; background: var(--bg-grouped); color: var(--label); font: var(--type-body); -webkit-font-smoothing: antialiased; }
+body { margin: 0; overscroll-behavior-y: none; touch-action: manipulation; background: var(--bg-grouped); color: var(--label); font: var(--type-body); -webkit-font-smoothing: antialiased; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 h1, h2, h3, p { margin: 0; }
@@ -262,3 +262,7 @@ svg.i { width: 1.15em; height: 1.15em; flex: none; fill: none; stroke: currentCo
 .cv-ctx .sw { flex: none; }
 h2 svg.i, h3 svg.i { vertical-align: -.15em; }
 .area-emoji { align-self: flex-start; margin-bottom: 2px; }
+
+/* iOS: campos com 16px+ evitam zoom automático ao focar */
+.select.tiny { font-size: 16px; }
+@media (display-mode: standalone) { .topbar { padding-top: max(var(--s-3), env(safe-area-inset-top)); } }
