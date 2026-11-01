@@ -1,4 +1,4 @@
-import { h, svg, openModal, toast } from './ui.js';
+import { h, svg, openModal, toast, ask } from './ui.js';
 import { icon } from './icons.js';
 import { state, onChange, replaceState, resetState } from './store.js';
 import { renderAgenda } from './agenda.js';
@@ -41,6 +41,20 @@ function draw() {
   window.scrollTo(0, scrollY);
 }
 onChange(draw);
+document.addEventListener('flavia:save-failed', () => toast('Não foi possível salvar: armazenamento cheio. Exporte um backup e libere espaço.'));
+
+function exportBackup() {
+  const json = JSON.stringify(state, null, 2);
+  const ta = h('textarea', { rows: 8, readOnly: true, value: json, 'aria-label': 'Backup em JSON', onfocus: e => e.target.select() });
+  openModal('Backup', h('div', { class: 'form' },
+    h('p', { class: 'hint' }, 'Copie o texto e guarde em um lugar seguro, ou baixe o arquivo.'), ta,
+    h('div', { class: 'form-foot' },
+      h('button', { type: 'button', class: 'btn', onclick: async () => { try { await navigator.clipboard.writeText(json); toast('Copiado.'); } catch { ta.select(); toast('Selecione e copie o texto.'); } } }, 'Copiar'),
+      h('button', { type: 'button', class: 'btn primary', onclick: () => {
+        const a = h('a', { href: URL.createObjectURL(new Blob([json], { type: 'application/json' })), download: `minha-vida-${new Date().toISOString().slice(0, 10)}.json` });
+        a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      } }, 'Baixar arquivo'))));
+}
 
 function settings() {
   const file = h('input', { type: 'file', accept: 'application/json', hidden: true, onchange: async e => {
@@ -48,19 +62,16 @@ function settings() {
     try {
       const data = JSON.parse(await f.text());
       if (!data.areas || !data.goals) throw new Error('formato');
-      if (confirm('Importar vai substituir TODOS os dados atuais. Continuar?')) { replaceState(data); toast('Backup importado.'); }
+      if (await ask('Importar vai substituir TODOS os dados atuais. Continuar?', 'Substituir')) { replaceState(data); toast('Backup importado.'); }
     } catch { toast('Arquivo inválido.'); }
   } });
   openModal('Dados e backup', h('div', { class: 'menu' },
     h('div', {}, h('p', { class: 'muted small', style: { marginBottom: '8px' } }, 'Tamanho do texto'),
       h('div', { class: 'seg', id: 'dt-seg' }, SIZES.map(([v, l]) => h('button', { class: v === getDt() ? 'on' : '', onclick: e => { setDt(v); e.target.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === e.target)); } }, l)))),
     h('p', { class: 'muted small' }, 'Seus dados ficam somente neste dispositivo (navegador). Faça backups de vez em quando.'),
-    h('button', { class: 'btn', onclick: () => {
-      const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })), download: `minha-vida-${new Date().toISOString().slice(0, 10)}.json` });
-      a.click(); URL.revokeObjectURL(a.href);
-    } }, [icon('download'), ' Exportar backup']),
+    h('button', { class: 'btn', onclick: exportBackup }, [icon('download'), ' Exportar backup']),
     h('button', { class: 'btn', onclick: () => file.click() }, [icon('upload'), ' Importar backup']),
-    h('button', { class: 'btn danger', onclick: () => { if (confirm('Apagar TUDO? Isso não pode ser desfeito.') && confirm('Tem certeza absoluta?')) { resetState(); toast('Tudo apagado.'); } } }, [icon('trash'), ' Apagar tudo']),
+    h('button', { class: 'btn danger', onclick: async () => { if (await ask('Apagar TUDO? Isso não pode ser desfeito.', 'Apagar') && await ask('Tem certeza absoluta?', 'Apagar tudo')) { resetState(); toast('Tudo apagado.'); } } }, [icon('trash'), ' Apagar tudo']),
     file));
 }
 

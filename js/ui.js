@@ -58,6 +58,18 @@ export function openModal(title, body) {
   return close;
 }
 
+/** Confirmação própria (o visualizador de artefatos bloqueia confirm()). */
+export function ask(message, okLabel = 'Excluir') {
+  return new Promise(resolve => {
+    let done = false, close = () => {};
+    const finish = v => { if (done) return; done = true; close(); resolve(v); };
+    close = openModal('Confirmar', h('div', { class: 'form' }, h('p', {}, message),
+      h('div', { class: 'form-foot' }, h('span', { class: 'grow' }),
+        h('button', { type: 'button', class: 'btn ghost', onclick: () => finish(false) }, 'Cancelar'),
+        h('button', { type: 'button', class: 'btn danger', onclick: () => finish(true) }, okLabel))));
+  });
+}
+
 export function sheet(title, options) {
   const close = openModal(title, h('div', { class: 'menu' },
     options.map(o => h('button', { class: 'btn menu-item', onclick: () => { close(); o.fn(); } }, o.label))));
@@ -119,7 +131,7 @@ export function openForm({ title, fields, values = {}, submit = 'Salvar', onSubm
 
   const close = openModal(title, form);
   form.append(h('div', { class: 'form-foot' },
-    onDelete && h('button', { type: 'button', class: 'btn danger', onclick: () => { if (confirm('Excluir? Isso não pode ser desfeito.')) { close(); onDelete(); } } }, 'Excluir'),
+    onDelete && h('button', { type: 'button', class: 'btn danger', onclick: async () => { if (await ask('Excluir? Isso não pode ser desfeito.')) { close(); onDelete(); } } }, 'Excluir'),
     h('span', { class: 'grow' }),
     h('button', { type: 'button', class: 'btn ghost', onclick: close }, 'Cancelar'),
     h('button', { type: 'submit', class: 'btn primary' }, submit)));

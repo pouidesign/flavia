@@ -30,7 +30,7 @@ const listeners = [];
 /** Grava sem redesenhar (digitação, arrastar). */
 export function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); }
-  catch { alert('Não foi possível salvar: armazenamento do navegador cheio. Exporte um backup e libere espaço (ex.: imagens do canvas).'); }
+  catch { document.dispatchEvent(new CustomEvent('flavia:save-failed')); }
 }
 /** Grava e redesenha a aba atual. */
 export function commit() { save(); listeners.forEach(f => f()); }

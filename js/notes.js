@@ -1,4 +1,4 @@
-import { h } from './ui.js';
+import { h, ask } from './ui.js';
 import { icon } from './icons.js';
 import { state, commit, save, uid } from './store.js';
 import { today, addDays, fmtLong, fmtBR } from './dates.js';
@@ -44,7 +44,7 @@ function editor() {
       h('button', { class: 'btn ghost', onclick: back }, [icon('back'), ' Notas']),
       h('span', { class: 'grow' }),
       h('button', { class: 'btn ghost', onclick: e => { n.pinned = !n.pinned; touch(); e.currentTarget.textContent = n.pinned ? 'Fixada' : 'Fixar'; } }, n.pinned ? 'Fixada' : 'Fixar'),
-      h('button', { class: 'btn danger', onclick: () => { if (confirm('Excluir esta nota?')) { state.notes = state.notes.filter(x => x !== n); editing = null; commit(); } } }, 'Excluir')),
+      h('button', { class: 'btn danger', onclick: async () => { if (await ask('Excluir esta nota?')) { state.notes = state.notes.filter(x => x !== n); editing = null; commit(); } } }, 'Excluir')),
     h('input', { class: 'note-title', placeholder: 'Título', value: n.title, oninput: e => { n.title = e.target.value; touch(); } }),
     h('textarea', { class: 'note-body', placeholder: 'Escreva livremente…', value: n.body, oninput: e => { n.body = e.target.value; touch(); } }));
 }

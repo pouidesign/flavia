@@ -1,6 +1,7 @@
 import { h, svg, toast } from './ui.js';
 import { state, save, uid } from './store.js';
 import { icon } from './icons.js';
+import { ask } from './ui.js';
 
 const W = 2600, H = 1800;
 const NOTE_COLORS = ['#fff2a8', '#ffd3dc', '#cfe8ff', '#d6f5d6', '#e6d9ff', '#ffe0c2'];
@@ -191,7 +192,7 @@ export function openBoard(root, board, back) {
     h('div', { class: 'cv-top' },
       h('button', { class: 'btn ghost', onclick: leave }, [icon('back'), ' Canvas']),
       h('input', { class: 'cv-name', value: board.name, 'aria-label': 'Nome do canvas', oninput: e => { board.name = e.target.value || 'Sem nome'; save(); } }),
-      h('button', { class: 'btn danger sm', onclick: () => { if (confirm('Excluir este canvas?')) { state.boards = state.boards.filter(b => b !== board); leave(); } } }, 'Excluir')),
+      h('button', { class: 'btn danger sm', onclick: async () => { if (await ask('Excluir este canvas?')) { state.boards = state.boards.filter(b => b !== board); leave(); } } }, 'Excluir')),
     toolbar, ctx, scroller, fileIn));
 
   board.items.forEach(mount); drawLinks(); drawStrokes(); paintTools(); paintCtx();
