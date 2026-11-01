@@ -1,0 +1,15 @@
+export const pad = n => String(n).padStart(2, '0');
+export const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+export const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+export const today = () => iso(new Date());
+export const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+export const addMonths = (s, n) => { const d = parse(s); d.setDate(1); d.setMonth(d.getMonth() + n); return iso(d); };
+export const startOfMonth = s => s.slice(0, 8) + '01';
+export const startOfWeek = s => { const d = parse(s); d.setDate(d.getDate() - d.getDay()); return iso(d); };
+export const daysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
+export const diffDays = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
+export const WD_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+export const fmtLong = s => parse(s).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+export const fmtMonth = s => parse(s).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+export const fmtShort = s => parse(s).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }).replace('.', '');
+export const fmtBR = s => parse(s).toLocaleDateString('pt-BR');
