@@ -3,14 +3,14 @@ export const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toS
 
 const defaults = () => ({
   areas: [
-    { id: 'saude', name: 'Saúde', emoji: '💚', color: '#4fb7a5' },
-    { id: 'carreira', name: 'Carreira', emoji: '💼', color: '#6b8cef' },
-    { id: 'financas', name: 'Finanças', emoji: '💰', color: '#e9b44c' },
-    { id: 'relacionamentos', name: 'Relacionamentos', emoji: '💞', color: '#e5707e' },
-    { id: 'familia', name: 'Família', emoji: '🏡', color: '#f0a26b' },
-    { id: 'mente', name: 'Mente & Espírito', emoji: '🧘', color: '#a07be0' },
-    { id: 'lazer', name: 'Lazer', emoji: '🎨', color: '#5bbcd6' },
-    { id: 'crescimento', name: 'Crescimento', emoji: '🌱', color: '#8fcf8f' },
+    { id: 'saude', name: 'Saúde', emoji: '💚', color: 'var(--sys-green)' },
+    { id: 'carreira', name: 'Carreira', emoji: '💼', color: 'var(--sys-blue)' },
+    { id: 'financas', name: 'Finanças', emoji: '💰', color: 'var(--sys-yellow)' },
+    { id: 'relacionamentos', name: 'Relacionamentos', emoji: '💞', color: 'var(--sys-pink)' },
+    { id: 'familia', name: 'Família', emoji: '🏡', color: 'var(--sys-orange)' },
+    { id: 'mente', name: 'Mente & Espírito', emoji: '🧘', color: 'var(--sys-purple)' },
+    { id: 'lazer', name: 'Lazer', emoji: '🎨', color: 'var(--sys-teal)' },
+    { id: 'crescimento', name: 'Crescimento', emoji: '🌱', color: 'var(--sys-mint)' },
   ],
   goals: [], tasks: [], events: [], habits: [], routines: [],
   notes: [], journal: {}, boards: [], moods: {},

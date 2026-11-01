@@ -177,7 +177,7 @@ export function areaForm(a = null) {
     fields: [
       { name: 'name', label: 'Nome', required: true, placeholder: 'Ex.: Espiritualidade' },
       { name: 'emoji', label: 'Emoji', required: true, placeholder: '✨', max: 4 },
-      { name: 'color', label: 'Cor', type: 'swatches', options: ['#4fb7a5', '#6b8cef', '#e9b44c', '#e5707e', '#f0a26b', '#a07be0', '#5bbcd6', '#8fcf8f', '#d98bc4', '#8a8fa3'] },
+      { name: 'color', label: 'Cor', type: 'swatches', options: ['green', 'blue', 'yellow', 'pink', 'orange', 'purple', 'teal', 'mint', 'indigo', 'brown'].map(c => `var(--sys-${c})`) },
     ],
     values: a || {},
     onSubmit: v => {

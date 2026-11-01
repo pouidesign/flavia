@@ -18,7 +18,7 @@ const avg = goals => goals.length ? goals.reduce((s, g) => s + progress(g), 0) /
 function ring(p, color, label) {
   const r = 26, c = 2 * Math.PI * r;
   return svg('svg', { viewBox: '0 0 64 64', class: 'ring', width: 64, height: 64, role: 'img', 'aria-label': `${Math.round(p * 100)}% de progresso` },
-    svg('circle', { cx: 32, cy: 32, r, fill: 'none', stroke: 'var(--surface-2)', 'stroke-width': 7 }),
+    svg('circle', { cx: 32, cy: 32, r, fill: 'none', stroke: 'var(--fill)', 'stroke-width': 7 }),
     svg('circle', { cx: 32, cy: 32, r, fill: 'none', stroke: color, 'stroke-width': 7, 'stroke-linecap': 'round', 'stroke-dasharray': `${c * p} ${c}`, transform: 'rotate(-90 32 32)' }),
     svg('text', { x: 32, y: 36, 'text-anchor': 'middle', class: 'ring-t' }, label));
 }

@@ -4,8 +4,8 @@ import { today, parse, iso, addMonths, startOfMonth, daysInMonth, fmtMonth, fmtL
 import { moonPhase, moonShape, phaseIndex, PHASES } from './moon.js';
 
 export const MOODS = [
-  { l: 1, e: '😞', n: 'Muito mal', c: '#e5707e' }, { l: 2, e: '😕', n: 'Mal', c: '#f0a26b' }, { l: 3, e: '😐', n: 'Neutro', c: '#e9cf6b' },
-  { l: 4, e: '🙂', n: 'Bem', c: '#8fcf8f' }, { l: 5, e: '😄', n: 'Muito bem', c: '#4fb7a5' },
+  { l: 1, e: '😞', n: 'Muito mal', c: 'var(--mood-1)' }, { l: 2, e: '😕', n: 'Mal', c: 'var(--mood-2)' }, { l: 3, e: '😐', n: 'Neutro', c: 'var(--mood-3)' },
+  { l: 4, e: '🙂', n: 'Bem', c: 'var(--mood-4)' }, { l: 5, e: '😄', n: 'Muito bem', c: 'var(--mood-5)' },
 ];
 const FACTORS = ['Sono', 'Exercício', 'Social', 'Trabalho', 'Alimentação', 'Família', 'Dinheiro', 'Saúde'];
 let month = startOfMonth(today()), selected = today(), host;
@@ -35,7 +35,7 @@ function mandala() {
     const [tx, ty] = polar(R0 + 13, mid), [mx, my] = polar(RM, mid), ph = moonPhase(d);
     parts.push(svg('g', { class: 'm-day' + (d === selected ? ' sel' : '') + (d === today() ? ' now' : ''), tabindex: 0, role: 'button', 'aria-label': `${fmtLong(d)} · ${mood ? mood.n : 'sem registro'} · ${PHASES[phaseIndex(ph)].n}`,
       onclick: () => { selected = d; draw(); }, onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { selected = d; draw(); } } },
-      svg('path', { d: sector(R0, R1, a0, a1), fill: mood ? mood.c : 'var(--surface-2)', class: 'm-sec' }),
+      svg('path', { d: sector(R0, R1, a0, a1), fill: mood ? mood.c : 'var(--fill)', class: 'm-sec' }),
       svg('text', { x: tx, y: ty + 3, 'text-anchor': 'middle', class: 'm-num' }, i + 1),
       moonGlyph(phaseIndex(ph) === 4 ? 11 : 9, ph, mx, my, phaseIndex(ph) === 4 ? 'full' : '')));
   }

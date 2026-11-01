@@ -3,7 +3,7 @@ import { state, save, uid } from './store.js';
 
 const W = 2600, H = 1800;
 const NOTE_COLORS = ['#fff2a8', '#ffd3dc', '#cfe8ff', '#d6f5d6', '#e6d9ff', '#ffe0c2'];
-const PENS = ['#2a2530', '#e5707e', '#6b8cef', '#4fb7a5', '#e9b44c'];
+const PENS = ['var(--label)', 'var(--sys-red)', 'var(--sys-blue)', 'var(--sys-green)', 'var(--sys-orange)'];
 
 export function openBoard(root, board, back) {
   let tool = 'move', sel = null, linkFrom = null, pen = PENS[0], penW = 3;

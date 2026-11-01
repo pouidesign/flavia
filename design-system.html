@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Minha Vida · Design System</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .ds { max-width: 980px; margin: 0 auto; padding: var(--s-4) var(--gutter) var(--s-10); }
+    .ds header { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--s-4); flex-wrap: wrap; margin-bottom: var(--s-6); }
+    .ds h1 { font: var(--type-large-title); letter-spacing: var(--tracking-title); }
+    .ds h2 { font: var(--type-title-2); letter-spacing: var(--tracking-title); margin: var(--s-10) 0 var(--s-1); }
+    .ds .lead { color: var(--label-2); margin-bottom: var(--s-4); font: var(--type-callout); max-width: 62ch; }
+    .ds nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--s-2); }
+    .ds nav a { font: var(--type-footnote); text-decoration: none; color: var(--tint); background: color-mix(in srgb, var(--tint) 12%, transparent); padding: 4px 12px; border-radius: var(--r-capsule); }
+    .swatches-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: var(--s-3); }
+    .sw-card { background: var(--bg-cell); border-radius: var(--r-lg); overflow: hidden; }
+    .sw-card i { display: block; height: 56px; box-shadow: inset 0 -.5px 0 var(--hairline); }
+    .sw-card div { padding: var(--s-2) var(--s-3); font: var(--type-caption-1); } .sw-card b { display: block; font: var(--type-footnote); font-weight: 600; }
+    .sw-card code, .tok code { font: var(--type-caption-1); font-family: var(--font-mono); color: var(--label-2); }
+    .tok { display: grid; gap: var(--s-2); }
+    .type-row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-4); padding: var(--s-3) var(--s-4); background: var(--bg-cell); }
+    .type-row + .type-row { border-top: .5px solid var(--separator); } .type-row code { font: var(--type-caption-1); font-family: var(--font-mono); color: var(--label-2); white-space: nowrap; }
+    .stack { display: flex; gap: var(--s-3); flex-wrap: wrap; align-items: center; }
+    .space-bar { height: 16px; background: var(--tint); border-radius: 4px; }
+    .radius-box { width: 92px; height: 72px; background: color-mix(in srgb, var(--tint) 18%, var(--bg-cell)); box-shadow: inset 0 0 0 1.5px var(--tint); display: grid; place-items: center; font: var(--type-caption-1); }
+    .demo { background: var(--bg-grouped); border-radius: var(--r-xl); padding: var(--s-4); box-shadow: 0 0 0 .5px var(--hairline); }
+    .bar-demo { position: static; border-radius: var(--r-lg); border: 0; }
+    .rules li { margin-bottom: var(--s-2); } .rules { color: var(--label); padding-left: var(--s-5); }
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); } .do-dont .card b { color: var(--success); } .do-dont .card.dont b { color: var(--danger); }
+    @media (max-width: 600px) { .do-dont { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="ds">
+  <header>
+    <div>
+      <p class="muted small">Estilo Apple Human Interface Guidelines</p>
+      <h1>Minha Vida · Design System</h1>
+    </div>
+    <div class="seg" role="tablist" aria-label="Tema" id="theme">
+      <button data-t="auto" class="on">Auto</button><button data-t="light">Claro</button><button data-t="dark">Escuro</button>
+    </div>
+  </header>
+  <nav>
+    <a href="#principios">Princípios</a><a href="#cores">Cores</a><a href="#tipografia">Tipografia</a><a href="#espaco">Espaço e cantos</a><a href="#componentes">Componentes</a><a href="#padroes">Padrões</a>
+  </nav>
+
+  <h2 id="principios">Princípios</h2>
+  <p class="lead">Adaptamos os três pilares da HIG — clareza, deferência e profundidade — para um app pessoal que se usa várias vezes ao dia.</p>
+  <div class="do-dont">
+    <div class="card"><b>Clareza</b><p>Texto legível, ícones simples, hierarquia por tamanho e peso, não por cor. Uma ação principal por tela.</p></div>
+    <div class="card"><b>Deferência</b><p>A interface some para o conteúdo aparecer. Fundos agrupados, listas sem molduras pesadas, cor só para dar significado.</p></div>
+    <div class="card"><b>Profundidade</b><p>Camadas com materiais translúcidos (barra de abas, sheets) e movimento com mola para mostrar de onde as coisas vêm.</p></div>
+    <div class="card"><b>Toque</b><p>Alvo mínimo de 44pt. Gestos conhecidos: deslizar para mudar de dia, sheets que sobem de baixo.</p></div>
+  </div>
+
+  <h2 id="cores">Cores</h2>
+  <p class="lead">Cores do sistema com variantes automáticas para claro e escuro. Nunca use hexadecimal no componente: use o token.</p>
+  <h3 class="muted small" style="margin:var(--s-4) 0 var(--s-2)">Destaques do sistema</h3>
+  <div class="swatches-grid" id="sys"></div>
+  <h3 class="muted small" style="margin:var(--s-4) 0 var(--s-2)">Fundos, rótulos e preenchimentos</h3>
+  <div class="swatches-grid" id="neutral"></div>
+  <h3 class="muted small" style="margin:var(--s-4) 0 var(--s-2)">Escala de humor</h3>
+  <div class="swatches-grid" id="moods"></div>
+
+  <h2 id="tipografia">Tipografia</h2>
+  <p class="lead">SF Pro (via <code>-apple-system</code>) com a escala do Dynamic Type. Pesos: regular (400), semibold (600) e bold (700). Tamanho do texto de corpo: 17px.</p>
+  <div class="rows" id="types"></div>
+
+  <h2 id="espaco">Espaço, cantos e movimento</h2>
+  <p class="lead">Grade de 4pt. Margem lateral de 16px. Cantos contínuos (squircle) quando o navegador suporta.</p>
+  <div class="tok" id="spaces"></div>
+  <div class="stack" style="margin-top:var(--s-5)" id="radii"></div>
+  <p class="lead" style="margin-top:var(--s-5)">Movimento: <code>--dur-fast</code> 150ms (toque), <code>--dur</code> 300ms (transições), <code>--ease-spring</code> para elementos que “ganham vida” (check, abas). Respeita “reduzir movimento”.</p>
+
+  <h2 id="componentes">Componentes</h2>
+  <p class="lead">Todos já existem em <code>css/style.css</code>, com as mesmas classes usadas no app.</p>
+
+  <h3 class="muted small" style="margin:var(--s-4) 0 var(--s-2)">Botões</h3>
+  <div class="demo stack">
+    <button class="btn primary">Preenchido</button><button class="btn">Tonal</button><button class="btn ghost">Simples</button><button class="btn danger">Destrutivo</button>
+    <button class="btn sm">Pequeno</button><button class="btn sm primary">Pequeno</button><button class="icon-btn" aria-label="Configurações">⚙️</button>
+  </div>
+
+  <h3 class="muted small" style="margin:var(--s-4) 0 var(--s-2)">Segmented control e abas internas</h3>
+  <div class="demo"><div class="seg"><button>Dia</button><button class="on">Semana</button><button>Mês</button></div>
+    <div class="subtabs" style="margin-top:var(--s-3)"><button class="on">🎯 Metas</button><button>✅ Tarefas</button><button>🔁 Hábitos</button></div></div>
+
+  <h3 class="muted small" style="margin:var(--s-4) 0 var(--s-2)">Lista agrupada, checkbox, chips</h3>
+  <div class="demo"><div class="rows">
+    <div class="row"><button class="check on" aria-label="feito">✓</button><div class="row-main"><div class="row-title">Correr 3 km</div><div class="row-meta"><span class="time">07:00</span><span class="chip" style="--c:var(--sys-green)">🎯 Correr 10 km</span></div></div></div>
+    <div class="row"><button class="check" aria-label="pendente"></button><div class="row-main"><div class="row-title">Pagar o aluguel</div><div class="row-meta"><span class="chip" style="--c:var(--sys-yellow)">💰 Finanças</span><span class="chip">avulsa</span></div></div></div>
+  </div></div>
+
+  <h3 class="muted small" style="margin:var(--s-4) 0 var(--s-2)">Card de meta</h3>
+  <div class="demo" style="max-width:380px"><article class="card goal" style="--c:var(--sys-green)">
+    <div class="goal-top"><span class="chip" style="--c:var(--sys-green)">💚 Saúde</span><span class="chip">⏳ 120 dias</span><span class="pace ok">no ritmo</span></div>
+    <h3 class="goal-title">Correr 10 km</h3>
+    <div><div class="bar"><i style="width:38%;background:var(--sys-green)"></i></div><div class="goal-nums"><span>5 / 10 km</span><b>38%</b></div></div>
+    <div class="actions"><button class="btn sm primary">Atualizar progresso</button><button class="btn sm">+ Tarefa</button><button class="btn sm ghost">Editar</button></div>
+  </article></div>
+
+  <h3 class="muted small" style="margin:var(--s-4) 0 var(--s-2)">Campos e switch</h3>
+  <div class="demo"><div class="form">
+    <label class="field"><span class="lbl">Título</span><input placeholder="Ex.: Consulta"></label>
+    <label class="field"><span class="lbl">Com erro</span><input value=""><small class="err">Obrigatório</small></label>
+    <div class="days"><button class="day on">D</button><button class="day">S</button><button class="day on">T</button><button class="day">Q</button><button class="day">Q</button><button class="day on">S</button><button class="day">S</button></div>
+    <label class="switch"><input type="checkbox" checked><span>Rotina ativa</span></label>
+  </div></div>
+
+  <h3 class="muted small" style="margin:var(--s-4) 0 var(--s-2)">Barra de abas (material translúcido)</h3>
+  <div class="demo" style="background:linear-gradient(135deg,var(--sys-indigo),var(--sys-pink));padding:var(--s-8) var(--s-4) var(--s-4)">
+    <nav class="tabbar bar-demo" style="position:static;display:flex">
+      <button class="tab on"><span class="ico">📅</span><span>Agenda</span></button><button class="tab"><span class="ico">🎯</span><span>Planejar</span></button>
+      <button class="tab"><span class="ico">🧭</span><span>Áreas</span></button><button class="tab"><span class="ico">✍️</span><span>Notas</span></button><button class="tab"><span class="ico">🌙</span><span>Humor</span></button>
+    </nav></div>
+
+  <h2 id="padroes">Padrões e regras</h2>
+  <ul class="rules">
+    <li><b>Uma cor de destaque</b> (<code>--tint</code>, índigo) para ações e seleção. Cores de área/humor só para categorizar.</li>
+    <li><b>Cor nunca sozinha:</b> sempre acompanhada de texto, ícone ou posição (acessibilidade).</li>
+    <li><b>Listas agrupadas</b> para qualquer coleção de itens; cards só para blocos independentes (meta, hábito, área).</li>
+    <li><b>Sheets de baixo</b> para criar e editar; confirmação só em ações destrutivas.</li>
+    <li><b>Texto sempre em tokens</b> <code>--type-*</code>. Não crie tamanhos novos.</li>
+    <li><b>Sem sombras fortes</b> em conteúdo; elevação só em itens flutuantes (botão +, avisos).</li>
+    <li><b>Contraste:</b> texto secundário usa <code>--label-2</code>; nunca <code>--label-3</code> para informação importante.</li>
+  </ul>
+</div>
+
+<script>
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const card = (name, label) => `<div class="sw-card"><i style="background:var(${name})"></i><div><b>${label}</b><code>${name}</code></div></div>`;
+  const draw = () => {
+    document.getElementById('sys').innerHTML = ['red','orange','yellow','green','mint','teal','blue','indigo','purple','pink','brown'].map(c => card('--sys-' + c, c)).join('');
+    document.getElementById('neutral').innerHTML = [['--bg-grouped','Fundo da página'],['--bg-cell','Célula / card'],['--bg-cell-2','Célula nível 2'],['--bg-elevated','Sheet'],
+      ['--label','Rótulo'],['--label-2','Rótulo secundário'],['--label-3','Rótulo terciário'],['--separator','Separador'],['--fill','Fill'],['--fill-strong','Fill forte'],['--tint','Tint (destaque)']].map(([n,l]) => card(n,l)).join('');
+    document.getElementById('moods').innerHTML = [1,2,3,4,5].map(i => card('--mood-' + i, ['Muito mal','Mal','Neutro','Bem','Muito bem'][i-1])).join('');
+  };
+  const types = [['large-title','Título grande','700 34/41'],['title-1','Título 1','700 28/34'],['title-2','Título 2','700 22/28'],['title-3','Título 3','600 20/25'],['headline','Headline','600 17/22'],
+    ['body','Corpo','400 17/22'],['callout','Callout','400 16/21'],['subhead','Subhead','400 15/20'],['footnote','Footnote','400 13/18'],['caption-1','Legenda 1','400 12/16'],['caption-2','Legenda 2','400 11/13']];
+  document.getElementById('types').innerHTML = types.map(([k,l,s]) => `<div class="type-row"><span style="font:var(--type-${k})">${l} · Organize sua vida</span><code>--type-${k} · ${s}</code></div>`).join('');
+  document.getElementById('spaces').innerHTML = [[1,4],[2,8],[3,12],[4,16],[5,20],[6,24],[8,32],[10,40]].map(([k,v]) => `<div class="stack"><code style="width:92px">--s-${k} · ${v}px</code><div class="space-bar" style="width:${v*4}px"></div></div>`).join('');
+  document.getElementById('radii').innerHTML = [['xs',6],['sm',10],['md',12],['lg',16],['xl',22],['sheet',28],['capsule',999]].map(([k,v]) => `<div class="radius-box" style="border-radius:var(--r-${k})">--r-${k}<br>${v==999?'∞':v+'px'}</div>`).join('');
+  draw();
+  const root = document.documentElement;
+  document.getElementById('theme').addEventListener('click', e => {
+    const t = e.target.dataset.t; if (!t) return;
+    t === 'auto' ? root.removeAttribute('data-theme') : root.setAttribute('data-theme', t);
+    document.querySelectorAll('#theme button').forEach(b => b.classList.toggle('on', b === e.target));
+  });
+</script>
+</body>
+</html>

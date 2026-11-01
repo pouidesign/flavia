@@ -4,8 +4,8 @@
   "description": "Organize sua vida: agenda, metas, hábitos, áreas, notas e humor.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#faf7f5",
-  "theme_color": "#7c5cbf",
+  "background_color": "#f2f2f7",
+  "theme_color": "#5856d6",
   "lang": "pt-BR",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },

@@ -37,9 +37,9 @@ export function goalCard(g) {
   const ritems = state.routines.flatMap(r => r.items.filter(i => i.goalId === g.id).map(i => ({ r, i })));
 
   let status;
-  if (done) status = chip('✅ Concluída', '#4fb7a5');
-  else if (left < 0) status = chip(`⏰ Atrasada ${-left}d`, '#e5707e');
-  else if (left === 0) status = chip('⏳ Vence hoje', '#f0a26b');
+  if (done) status = chip('✅ Concluída', 'var(--success)');
+  else if (left < 0) status = chip(`⏰ Atrasada ${-left}d`, 'var(--danger)');
+  else if (left === 0) status = chip('⏳ Vence hoje', 'var(--warning)');
   else status = chip(`⏳ ${left} ${left === 1 ? 'dia' : 'dias'} · ${fmtBR(g.deadline)}`);
 
   let pace = null;

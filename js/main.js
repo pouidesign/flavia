@@ -47,7 +47,7 @@ function settings() {
 }
 
 document.getElementById('app').append(
-  h('header', { class: 'topbar' }, h('h1', {}, '🌿 Minha Vida'), h('button', { class: 'icon-btn', 'aria-label': 'Dados e backup', onclick: settings }, '⚙️')),
+  h('header', { class: 'topbar' }, h('h1', {}, 'Minha Vida'), h('button', { class: 'icon-btn', 'aria-label': 'Dados e backup', onclick: settings }, '⚙️')),
   main, bar);
 draw();
 
