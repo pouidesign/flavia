@@ -1,4 +1,5 @@
 import { h, sheet } from './ui.js';
+import { icon, routineIcon } from './icons.js';
 import { state, commit } from './store.js';
 import { today, addDays, addMonths, startOfWeek, startOfMonth, parse, iso, fmtLong, fmtMonth, fmtShort, daysInMonth, WD_SHORT } from './dates.js';
 import { dayItems, ageOn, habitDue, streak } from './data.js';
@@ -6,7 +7,7 @@ import { check, chip, goalChip, areaChip, taskRow, segmented, section, empty } f
 import { taskForm, eventForm } from './forms.js';
 
 let view = 'day', cursor = today(), host;
-const ICON = { compromisso: '📌', aniversario: '🎂', data: '⭐' };
+const ICON = { compromisso: 'pin', aniversario: 'cake', data: 'star' };
 
 export function renderAgenda(root) { host = root; draw(); }
 
@@ -47,10 +48,10 @@ function draw() {
 
 function addMenu() {
   sheet('Adicionar em ' + fmtShort(cursor), [
-    { label: '✅ Tarefa', fn: () => taskForm(null, { date: cursor }) },
-    { label: '📌 Compromisso', fn: () => eventForm(null, { date: cursor, type: 'compromisso' }) },
-    { label: '🎂 Aniversário', fn: () => eventForm(null, { date: cursor, type: 'aniversario' }) },
-    { label: '⭐ Data especial', fn: () => eventForm(null, { date: cursor, type: 'data' }) },
+    { label: [icon('check'), ' Tarefa'], fn: () => taskForm(null, { date: cursor }) },
+    { label: [icon('pin'), ' Compromisso'], fn: () => eventForm(null, { date: cursor, type: 'compromisso' }) },
+    { label: [icon('cake'), ' Aniversário'], fn: () => eventForm(null, { date: cursor, type: 'aniversario' }) },
+    { label: [icon('star'), ' Data especial'], fn: () => eventForm(null, { date: cursor, type: 'data' }) },
   ]);
 }
 
@@ -58,7 +59,7 @@ const eventLabel = (e, d) => e.type === 'aniversario' && ageOn(e, d) > 0 ? `${e.
 
 function eventRow(e, d) {
   return h('div', { class: 'row ev', onclick: () => eventForm(e) },
-    h('span', { class: 'ev-ico' }, ICON[e.type] || '📌'),
+    h('span', { class: 'ev-ico' }, icon(ICON[e.type] || 'pin', 22)),
     h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, eventLabel(e, d)),
       h('div', { class: 'row-meta' }, e.time && h('span', { class: 'time' }, e.time), e.note && h('span', { class: 'muted small' }, e.note))));
 }
@@ -68,17 +69,17 @@ function dayBody(d = cursor) {
   const overdue = d === today() ? state.tasks.filter(t => !t.done && t.date && t.date < d) : [];
   const out = [];
   if (it.events.length) out.push(section('Compromissos e datas', it.events.map(e => eventRow(e, d))));
-  if (overdue.length) out.push(section('⚠️ Atrasadas', overdue.map(t => taskRow(t, { date: true }))));
+  if (overdue.length) out.push(section([icon('warning'), ' Atrasadas'], overdue.map(t => taskRow(t, { date: true }))));
   out.push(section('Tarefas', it.tasks.length ? it.tasks.map(t => taskRow(t)) : [empty('Nenhuma tarefa neste dia.')]));
   if (it.habits.length) out.push(section('Hábitos', it.habits.map(x => h('div', { class: 'row' + (x.log[d] ? ' done' : '') },
     check(x.log[d], () => { x.log[d] ? delete x.log[d] : (x.log[d] = true); commit(); }),
     h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, x.title),
-      h('div', { class: 'row-meta' }, streak(x) > 0 && h('span', { class: 'time' }, `🔥 ${streak(x)}`), x.goalId && goalChip(x.goalId)))))));
+      h('div', { class: 'row-meta' }, streak(x) > 0 && h('span', { class: 'time' }, [icon('flame'), ` ${streak(x)}`]), x.goalId && goalChip(x.goalId)))))));
   for (const r of it.routines) {
     const log = r.log[d] || {};
     const items = [...r.items].sort((a, b) => (a.time || '99') < (b.time || '99') ? -1 : 1);
     const n = items.filter(i => log[i.id]).length;
-    out.push(section(`${r.emoji || '🌅'} ${r.name}  ·  ${n}/${items.length}`, items.length ? items.map(i => h('div', { class: 'row' + (log[i.id] ? ' done' : '') },
+    out.push(section([icon(routineIcon(r)), ` ${r.name}  ·  ${n}/${items.length}`], items.length ? items.map(i => h('div', { class: 'row' + (log[i.id] ? ' done' : '') },
       check(log[i.id], () => { r.log[d] = r.log[d] || {}; r.log[d][i.id] ? delete r.log[d][i.id] : (r.log[d][i.id] = true); commit(); }),
       h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, i.title),
         h('div', { class: 'row-meta' }, i.time && h('span', { class: 'time' }, i.time), i.goalId && goalChip(i.goalId))))) : [empty('Rotina sem itens.')]));
@@ -89,11 +90,11 @@ function dayBody(d = cursor) {
 function miniItems(d) {
   const it = dayItems(d);
   const lines = [
-    ...it.events.map(e => h('div', { class: 'mini ev', onclick: ev => { ev.stopPropagation(); eventForm(e); } }, `${ICON[e.type] || '📌'} ${e.time ? e.time + ' ' : ''}${e.title}`)),
+    ...it.events.map(e => h('div', { class: 'mini ev', onclick: ev => { ev.stopPropagation(); eventForm(e); } }, [icon(ICON[e.type] || 'pin'), ` ${e.time ? e.time + ' ' : ''}${e.title}`])),
     ...it.tasks.map(t => h('div', { class: 'mini tk' + (t.done ? ' done' : ''), onclick: ev => { ev.stopPropagation(); taskForm(t); } }, `${t.done ? '✓' : '○'} ${t.title}`)),
   ];
   const hb = it.habits.length, ro = it.routines.length;
-  if (hb || ro) lines.push(h('div', { class: 'mini muted' }, [hb && `🔁 ${hb} hábito(s)`, ro && `🌅 ${ro} rotina(s)`].filter(Boolean).join(' · ')));
+  if (hb || ro) lines.push(h('div', { class: 'mini muted' }, [hb && `${hb} hábito(s)`, ro && `${ro} rotina(s)`].filter(Boolean).join(' · ')));
   return lines;
 }
 
@@ -116,7 +117,7 @@ function monthBody() {
   for (let day = 1; day <= n; day++) {
     const d = iso(new Date(p.getFullYear(), p.getMonth(), day));
     const it = dayItems(d);
-    const all = [...it.events.map(e => ({ t: `${ICON[e.type] || '📌'} ${e.title}`, c: 'ev' })), ...it.tasks.map(t => ({ t: t.title, c: 'tk' + (t.done ? ' done' : '') }))];
+    const all = [...it.events.map(e => ({ t: e.title, c: 'ev' })), ...it.tasks.map(t => ({ t: t.title, c: 'tk' + (t.done ? ' done' : '') }))];
     cells.push(h('button', { class: 'cell' + (d === today() ? ' is-today' : ''), onclick: () => { cursor = d; view = 'day'; draw(); }, 'aria-label': fmtLong(d) },
       h('span', { class: 'num' }, day),
       all.slice(0, 3).map(x => h('span', { class: 'chip-mini ' + x.c }, x.t)),

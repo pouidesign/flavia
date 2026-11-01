@@ -9,7 +9,8 @@ Referência visual interativa: abra `design-system.html`. Fonte dos tokens: `css
 3. **Cor nunca sozinha**: sempre com texto, ícone ou posição.
 4. Alvo de toque mínimo **44px** (`--hit`).
 5. Claro e escuro automáticos (`light-dark()`); forçar com `<html data-theme="light|dark">`.
-6. Respeitar *reduzir movimento* e *aumentar contraste* (já tratado em `tokens.css`).
+6. **Sem emojis.** Ícones são SVG de traço em `js/icons.js` (`icon(nome, tamanho)`); carinhas de humor em `face(nivel)`; fases da lua desenhadas (`moonIcon`).
+7. Respeitar *reduzir movimento* e *aumentar contraste* (já tratado em `tokens.css`).
 
 ## Tokens
 | Grupo | Tokens | Observação |
@@ -44,7 +45,8 @@ Referência visual interativa: abra `design-system.html`. Fonte dos tokens: `css
 
 ## Ícones e tamanho de texto
 - Barra de abas usa ícones de traço (SVG, grade 24, `stroke: currentColor`) no estilo SF Symbols; defina novos em `ICONS` (`js/main.js`).
-- **Dynamic Type:** os tokens `--type-*` usam `rem × --dt`. Acompanham a preferência de fonte do navegador e o ajuste manual em ⚙️ → Tamanho do texto (Pequeno .9 · Padrão 1 · Grande 1.15 · Maior 1.3). Não use `px` para texto.
+- **Dynamic Type:** os tokens `--type-*` usam `rem × --dt`. Acompanham a preferência de fonte do navegador e o ajuste manual em Configurações → Tamanho do texto (Pequeno .9 · Padrão 1 · Grande 1.15 · Maior 1.3). Não use `px` para texto.
 
 ## Pendências sugeridas
 - Cores de área já salvas em hexadecimal continuam funcionando, mas não mudam com o tema.
+- Dados antigos com emoji (áreas, rotinas) são convertidos automaticamente para ícones na leitura.

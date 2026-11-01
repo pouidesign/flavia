@@ -1,3 +1,5 @@
+import { icon } from './icons.js';
+
 export function h(tag, attrs = {}, ...kids) {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
@@ -48,7 +50,7 @@ export function openModal(title, body) {
   const overlay = h('div', { class: 'overlay', onclick: e => { if (e.target === overlay) close(); } },
     h('div', { class: 'sheet', role: 'dialog', 'aria-label': title },
       h('div', { class: 'sheet-head' }, h('h3', {}, title),
-        h('button', { class: 'icon-btn', 'aria-label': 'Fechar', onclick: close }, '✕')),
+        h('button', { class: 'icon-btn', 'aria-label': 'Fechar', onclick: close }, icon('close', 22))),
       h('div', { class: 'sheet-body' }, body)));
   document.body.append(overlay);
   document.addEventListener('keydown', esc);
@@ -88,6 +90,14 @@ export function openForm({ title, fields, values = {}, submit = 'Salvar', onSubm
         return b;
       }));
       getters[f.name] = () => [...sel].sort();
+    } else if (f.type === 'icons') {
+      let cur = v || f.options[0];
+      input = h('div', { class: 'icon-pick' }, f.options.map(n => {
+        const b = h('button', { type: 'button', class: 'ip' + (n === cur ? ' on' : ''), 'aria-label': n,
+          onclick: () => { cur = n; input.querySelectorAll('.ip').forEach(x => x.classList.toggle('on', x === b)); } }, icon(n, 22));
+        return b;
+      }));
+      getters[f.name] = () => cur;
     } else if (f.type === 'swatches') {
       let cur = v || f.options[0];
       input = h('div', { class: 'swatches' }, f.options.map(c => {

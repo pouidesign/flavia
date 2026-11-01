@@ -1,11 +1,12 @@
 import { h, svg } from './ui.js';
 import { state, commit, save } from './store.js';
 import { today, parse, iso, addMonths, startOfMonth, daysInMonth, fmtMonth, fmtLong } from './dates.js';
+import { face } from './icons.js';
 import { moonPhase, moonShape, phaseIndex, PHASES } from './moon.js';
 
 export const MOODS = [
-  { l: 1, e: '😞', n: 'Muito mal', c: 'var(--mood-1)' }, { l: 2, e: '😕', n: 'Mal', c: 'var(--mood-2)' }, { l: 3, e: '😐', n: 'Neutro', c: 'var(--mood-3)' },
-  { l: 4, e: '🙂', n: 'Bem', c: 'var(--mood-4)' }, { l: 5, e: '😄', n: 'Muito bem', c: 'var(--mood-5)' },
+  { l: 1, n: 'Muito mal', c: 'var(--mood-1)' }, { l: 2, n: 'Mal', c: 'var(--mood-2)' }, { l: 3, n: 'Neutro', c: 'var(--mood-3)' },
+  { l: 4, n: 'Bem', c: 'var(--mood-4)' }, { l: 5, n: 'Muito bem', c: 'var(--mood-5)' },
 ];
 const FACTORS = ['Sono', 'Exercício', 'Social', 'Trabalho', 'Alimentação', 'Família', 'Dinheiro', 'Saúde'];
 let month = startOfMonth(today()), selected = today(), host;
@@ -17,6 +18,10 @@ function sector(r0, r1, a0, a1) {
   const [x0, y0] = polar(r1, a0), [x1, y1] = polar(r1, a1), [x2, y2] = polar(r0, a1), [x3, y3] = polar(r0, a0);
   const big = a1 - a0 > 180 ? 1 : 0;
   return `M${x0} ${y0}A${r1} ${r1} 0 ${big} 1 ${x1} ${y1}L${x2} ${y2}A${r0} ${r0} 0 ${big} 0 ${x3} ${y3}Z`;
+}
+export function moonIcon(idx, size = 18) {
+  const s = svg('svg', { viewBox: '-11 -11 22 22', width: size, height: size, class: 'moon-ico', 'aria-hidden': 'true' }, moonGlyph(10, idx / 8));
+  return s;
 }
 export function moonGlyph(r, p, x = 0, y = 0, cls = '') {
   const { d, flip } = moonShape(r, p);
@@ -57,7 +62,7 @@ function stats() {
   Object.entries(state.moods).forEach(([d, m]) => { const i = phaseIndex(moonPhase(d)); byPhase[i].s += m.level; byPhase[i].n++; });
   return h('div', { class: 'mood-stats' },
     h('div', { class: 'card' }, h('h3', {}, 'No mês'),
-      rec.length ? h('div', {}, h('p', {}, `${rec.length} dia(s) registrado(s) · humor médio `, h('b', {}, avg.toFixed(1).replace('.', ',') + ' ' + MOODS[Math.round(avg) - 1].e)),
+      rec.length ? h('div', {}, h('p', {}, `${rec.length} dia(s) registrado(s) · humor médio `, h('b', {}, avg.toFixed(1).replace('.', ',')), ' ', face(Math.round(avg), 18)),
         best && h('p', { class: 'muted small' }, `Melhor dia: ${fmtLong(best[0])}`)) : h('p', { class: 'muted' }, 'Sem registros neste mês.'),
       h('div', { class: 'legend' }, MOODS.map(m => h('span', {}, h('i', { style: { background: m.c } }), m.n)))),
     h('div', { class: 'card' }, h('h3', {}, 'Humor por fase da lua'),
@@ -65,7 +70,7 @@ function stats() {
         const b = byPhase[i], v = b.n ? b.s / b.n : 0;
         return h('div', { class: 'pb', title: b.n ? `${v.toFixed(1)} em ${b.n} dia(s)` : 'sem dados' },
           h('div', { class: 'pb-bar' }, h('i', { style: { height: (v / 5 * 100) + '%', background: b.n ? MOODS[Math.max(0, Math.round(v) - 1)].c : 'transparent' } })),
-          h('span', {}, p.e));
+          moonIcon(i, 16));
       })),
       h('p', { class: 'muted small' }, 'Média de humor em cada fase, considerando todos os seus registros.')));
 }
@@ -76,9 +81,9 @@ function entry() {
   const set = patch => { state.moods[selected] = { level: null, factors: [], note: '', ...m, ...patch }; };
   return h('section', { class: 'card mood-entry' },
     h('h3', {}, selected === today() ? 'Como você está hoje?' : `Como foi ${fmtLong(selected)}?`),
-    h('p', { class: 'muted small' }, `${ph.e} ${ph.n}`),
+    h('p', { class: 'muted small mood-phase' }, moonIcon(phaseIndex(moonPhase(selected))), ' ', ph.n),
     h('div', { class: 'moods' }, MOODS.map(x => h('button', { class: 'mood-btn' + (m.level === x.l ? ' on' : ''), style: { '--c': x.c }, 'aria-pressed': String(m.level === x.l),
-      onclick: () => { if (m.level === x.l) { delete state.moods[selected]; } else set({ level: x.l }); commit(); } }, h('span', {}, x.e), h('small', {}, x.n)))),
+      onclick: () => { if (m.level === x.l) { delete state.moods[selected]; } else set({ level: x.l }); commit(); } }, face(x.l, 30), h('small', {}, x.n)))),
     m.level && h('div', { class: 'factors' }, FACTORS.map(f => h('button', { class: 'tag' + (m.factors?.includes(f) ? ' on' : ''),
       onclick: () => { const fs = new Set(m.factors || []); fs.has(f) ? fs.delete(f) : fs.add(f); set({ factors: [...fs] }); commit(); } }, f))),
     m.level && h('textarea', { rows: 2, placeholder: 'Quer anotar algo sobre o dia?', value: m.note || '', oninput: e => { set({ note: e.target.value }); save(); } }));

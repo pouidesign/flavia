@@ -3,14 +3,14 @@ export const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toS
 
 const defaults = () => ({
   areas: [
-    { id: 'saude', name: 'Saúde', emoji: '💚', color: 'var(--sys-green)' },
-    { id: 'carreira', name: 'Carreira', emoji: '💼', color: 'var(--sys-blue)' },
-    { id: 'financas', name: 'Finanças', emoji: '💰', color: 'var(--sys-yellow)' },
-    { id: 'relacionamentos', name: 'Relacionamentos', emoji: '💞', color: 'var(--sys-pink)' },
-    { id: 'familia', name: 'Família', emoji: '🏡', color: 'var(--sys-orange)' },
-    { id: 'mente', name: 'Mente & Espírito', emoji: '🧘', color: 'var(--sys-purple)' },
-    { id: 'lazer', name: 'Lazer', emoji: '🎨', color: 'var(--sys-teal)' },
-    { id: 'crescimento', name: 'Crescimento', emoji: '🌱', color: 'var(--sys-mint)' },
+    { id: 'saude', name: 'Saúde', icon: 'heart', color: 'var(--sys-green)' },
+    { id: 'carreira', name: 'Carreira', icon: 'briefcase', color: 'var(--sys-blue)' },
+    { id: 'financas', name: 'Finanças', icon: 'coins', color: 'var(--sys-yellow)' },
+    { id: 'relacionamentos', name: 'Relacionamentos', icon: 'people', color: 'var(--sys-pink)' },
+    { id: 'familia', name: 'Família', icon: 'home', color: 'var(--sys-orange)' },
+    { id: 'mente', name: 'Mente & Espírito', icon: 'sparkle', color: 'var(--sys-purple)' },
+    { id: 'lazer', name: 'Lazer', icon: 'palette', color: 'var(--sys-teal)' },
+    { id: 'crescimento', name: 'Crescimento', icon: 'sprout', color: 'var(--sys-mint)' },
   ],
   goals: [], tasks: [], events: [], habits: [], routines: [],
   notes: [], journal: {}, boards: [], moods: {},

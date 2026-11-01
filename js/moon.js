@@ -11,8 +11,8 @@ export function moonPhase(s) {
   return age / SYN;
 }
 export const PHASES = [
-  { n: 'Lua nova', e: '🌑' }, { n: 'Crescente', e: '🌒' }, { n: 'Quarto crescente', e: '🌓' }, { n: 'Crescente gibosa', e: '🌔' },
-  { n: 'Lua cheia', e: '🌕' }, { n: 'Minguante gibosa', e: '🌖' }, { n: 'Quarto minguante', e: '🌗' }, { n: 'Minguante', e: '🌘' },
+  { n: 'Lua nova' }, { n: 'Crescente' }, { n: 'Quarto crescente' }, { n: 'Crescente gibosa' },
+  { n: 'Lua cheia' }, { n: 'Minguante gibosa' }, { n: 'Quarto minguante' }, { n: 'Minguante' },
 ];
 export const phaseIndex = p => Math.floor(p * 8 + 0.5) % 8;
 

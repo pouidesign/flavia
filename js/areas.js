@@ -1,4 +1,5 @@
 import { h, svg } from './ui.js';
+import { icon, areaIcon, routineIcon } from './icons.js';
 import { state, commit } from './store.js';
 import { progress } from './data.js';
 import { check, goalCard, taskRow, section, empty, chip } from './components.js';
@@ -32,7 +33,7 @@ function overview() {
       const pend = state.tasks.filter(t => !t.done && (t.goalId ? state.goals.find(g => g.id === t.goalId)?.areaId === a.id : t.areaId === a.id)).length;
       const p = avg(goals);
       return h('button', { class: 'area-card', style: { '--c': a.color }, onclick: () => { current = a.id; renderAreas(host); } },
-        h('span', { class: 'area-emoji' }, a.emoji),
+        h('span', { class: 'area-emoji' }, icon(areaIcon(a), 30)),
         h('b', {}, a.name),
         h('span', { class: 'muted small' }, `${active.length} meta(s) ativa(s) · ${pend} tarefa(s)`),
         ring(p, a.color, Math.round(p * 100) + '%'));
@@ -48,15 +49,15 @@ function detail(a) {
   const ritems = state.routines.flatMap(r => r.items.filter(i => i.goalId && state.goals.find(g => g.id === i.goalId)?.areaId === a.id).map(i => ({ r, i })));
   return h('div', { class: 'area-detail', style: { '--c': a.color } },
     h('div', { class: 'area-head' },
-      h('button', { class: 'btn ghost', onclick: () => { current = null; renderAreas(host); } }, '← Áreas'),
-      h('h2', {}, `${a.emoji} ${a.name}`),
+      h('button', { class: 'btn ghost', onclick: () => { current = null; renderAreas(host); } }, [icon('back'), ' Áreas']),
+      h('h2', {}, icon(areaIcon(a), 24), ' ', a.name),
       h('button', { class: 'btn ghost', onclick: () => areaForm(a) }, 'Editar')),
     h('div', { class: 'area-summary card' }, ring(avg(goals), a.color, Math.round(avg(goals) * 100) + '%'),
       h('div', {}, h('b', {}, `${active.length} meta(s) ativa(s)`), h('div', { class: 'muted small' }, `${done.length} concluída(s) · ${tasks.length} tarefa(s) pendente(s) · ${habits.length} hábito(s)`))),
     section('Metas', active.length ? [h('div', { class: 'grid' }, active.map(g => goalCard(g)))] : [empty('Nenhuma meta ativa nesta área.')],
       h('button', { class: 'btn sm primary', onclick: () => goalForm(null, { areaId: a.id }) }, '+ Meta')),
     tasks.length ? section('Tarefas pendentes', tasks.map(t => taskRow(t, { date: true })), h('button', { class: 'btn sm', onclick: () => taskForm(null, { areaId: a.id }) }, '+ Tarefa')) : null,
-    habits.length ? section('Hábitos', habits.map(x => h('div', { class: 'row link' }, h('span', {}, '🔁'), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, x.title))))) : null,
-    ritems.length ? section('Rotinas ligadas às metas', ritems.map(({ r, i }) => h('div', { class: 'row link' }, h('span', {}, r.emoji || '🌅'), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, i.title), h('div', { class: 'row-meta' }, chip(r.name)))))) : null,
-    done.length ? section('🏆 Concluídas', [h('div', { class: 'grid' }, done.map(g => goalCard(g)))]) : null);
+    habits.length ? section('Hábitos', habits.map(x => h('div', { class: 'row link' }, h('span', { class: 'lead-ico' }, icon('repeat', 20)), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, x.title))))) : null,
+    ritems.length ? section('Rotinas ligadas às metas', ritems.map(({ r, i }) => h('div', { class: 'row link' }, h('span', { class: 'lead-ico' }, icon(routineIcon(r), 20)), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, i.title), h('div', { class: 'row-meta' }, chip(r.name)))))) : null,
+    done.length ? section([icon('trophy'), ' Concluídas'], [h('div', { class: 'grid' }, done.map(g => goalCard(g)))]) : null);
 }

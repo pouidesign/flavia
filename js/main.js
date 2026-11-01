@@ -1,4 +1,5 @@
 import { h, svg, openModal, toast } from './ui.js';
+import { icon } from './icons.js';
 import { state, onChange, replaceState, resetState } from './store.js';
 import { renderAgenda } from './agenda.js';
 import { renderPlan } from './plan.js';
@@ -18,7 +19,7 @@ const ICONS = {
   notes: () => [svg('path', { d: 'M11 4H7.5A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5V13' }), svg('path', { class: 'fl', d: 'M18.2 3.6l2.2 2.2-8.2 8.2-3 .8.8-3z' })],
   mood: () => [svg('path', { class: 'fl', d: 'M20 14.2A8.3 8.3 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2z' })],
 };
-const icon = k => svg('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true' }, ICONS[k]());
+const tabIcon = k => svg('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true' }, ICONS[k]());
 
 /* Tamanho do texto (Dynamic Type manual) */
 const SIZES = [['.9', 'Pequeno'], ['1', 'Padrão'], ['1.15', 'Grande'], ['1.3', 'Maior']];
@@ -33,7 +34,7 @@ const bar = h('nav', { class: 'tabbar', 'aria-label': 'Seções' });
 
 function draw() {
   bar.replaceChildren(...TABS.map(([k, ico, label]) => h('button', { class: 'tab' + (k === tab ? ' on' : ''), 'aria-current': k === tab ? 'page' : null,
-    onclick: () => { tab = k; try { sessionStorage.setItem('tab', k); } catch { /* ignora */ } draw(); } }, icon(ico), h('span', {}, label))));
+    onclick: () => { tab = k; try { sessionStorage.setItem('tab', k); } catch { /* ignora */ } draw(); } }, tabIcon(ico), h('span', {}, label))));
   const scrollY = main.dataset.tab === tab ? window.scrollY : 0;
   main.dataset.tab = tab;
   TABS.find(t => t[0] === tab)[3](main);
@@ -57,14 +58,14 @@ function settings() {
     h('button', { class: 'btn', onclick: () => {
       const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })), download: `minha-vida-${new Date().toISOString().slice(0, 10)}.json` });
       a.click(); URL.revokeObjectURL(a.href);
-    } }, '⬇️ Exportar backup'),
-    h('button', { class: 'btn', onclick: () => file.click() }, '⬆️ Importar backup'),
-    h('button', { class: 'btn danger', onclick: () => { if (confirm('Apagar TUDO? Isso não pode ser desfeito.') && confirm('Tem certeza absoluta?')) { resetState(); toast('Tudo apagado.'); } } }, '🗑️ Apagar tudo'),
+    } }, [icon('download'), ' Exportar backup']),
+    h('button', { class: 'btn', onclick: () => file.click() }, [icon('upload'), ' Importar backup']),
+    h('button', { class: 'btn danger', onclick: () => { if (confirm('Apagar TUDO? Isso não pode ser desfeito.') && confirm('Tem certeza absoluta?')) { resetState(); toast('Tudo apagado.'); } } }, [icon('trash'), ' Apagar tudo']),
     file));
 }
 
 document.getElementById('app').append(
-  h('header', { class: 'topbar' }, h('h1', {}, 'Minha Vida'), h('button', { class: 'icon-btn', 'aria-label': 'Dados e backup', onclick: settings }, '⚙️')),
+  h('header', { class: 'topbar' }, h('h1', {}, 'Minha Vida'), h('button', { class: 'icon-btn', 'aria-label': 'Dados e backup', onclick: settings }, icon('gear', 24))),
   main, bar);
 draw();
 

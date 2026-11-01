@@ -2,10 +2,11 @@ import { state, commit, uid } from './store.js';
 import { openForm, toast } from './ui.js';
 import { goal, progress } from './data.js';
 import { today } from './dates.js';
+import { AREA_ICONS, ROUTINE_ICONS, areaIcon, routineIcon } from './icons.js';
 
-export const areaOptions = blank => [...(blank ? [{ v: '', l: blank }] : []), ...state.areas.map(a => ({ v: a.id, l: `${a.emoji} ${a.name}` }))];
+export const areaOptions = blank => [...(blank ? [{ v: '', l: blank }] : []), ...state.areas.map(a => ({ v: a.id, l: a.name }))];
 export const goalOptions = sel => [{ v: '', l: '— sem meta (avulsa) —' },
-  ...state.goals.filter(g => progress(g) < 1 || g.id === sel).map(g => ({ v: g.id, l: `🎯 ${g.title}` }))];
+  ...state.goals.filter(g => progress(g) < 1 || g.id === sel).map(g => ({ v: g.id, l: g.title }))];
 
 export function taskForm(t = null, def = {}) {
   openForm({
@@ -35,7 +36,7 @@ export function eventForm(e = null, def = {}) {
     title: e ? 'Editar' : (def.type === 'aniversario' ? 'Novo aniversário' : 'Novo compromisso'),
     fields: [
       { name: 'title', label: 'Título', required: true, placeholder: 'Ex.: Consulta, Aniversário da Ana' },
-      { name: 'type', label: 'Tipo', type: 'select', options: [{ v: 'compromisso', l: '📌 Compromisso' }, { v: 'aniversario', l: '🎂 Aniversário' }, { v: 'data', l: '⭐ Data especial' }] },
+      { name: 'type', label: 'Tipo', type: 'select', options: [{ v: 'compromisso', l: 'Compromisso' }, { v: 'aniversario', l: 'Aniversário' }, { v: 'data', l: 'Data especial' }] },
       { name: 'date', label: 'Data (aniversário: data de nascimento)', type: 'date', required: true },
       { name: 'time', label: 'Hora', type: 'time' },
       { name: 'yearly', label: 'Repetir todo ano', type: 'checkbox' },
@@ -125,9 +126,9 @@ export function habitForm(x = null, def = {}) {
 }
 
 const TEMPLATES = {
-  manha: { name: 'Manhã', emoji: '🌅', items: [['06:30', 'Acordar e beber água'], ['06:45', 'Alongar 10 min'], ['07:00', 'Planejar o dia']] },
-  noite: { name: 'Noite', emoji: '🌙', items: [['21:00', 'Desligar telas'], ['21:30', 'Diário / gratidão'], ['22:00', 'Dormir']] },
-  treino: { name: 'Treino', emoji: '💪', items: [['18:00', 'Aquecimento'], ['18:15', 'Treino'], ['19:00', 'Alongamento']] },
+  manha: { name: 'Manhã', icon: 'sunrise', items: [['06:30', 'Acordar e beber água'], ['06:45', 'Alongar 10 min'], ['07:00', 'Planejar o dia']] },
+  noite: { name: 'Noite', icon: 'moon', items: [['21:00', 'Desligar telas'], ['21:30', 'Diário / gratidão'], ['22:00', 'Dormir']] },
+  treino: { name: 'Treino', icon: 'dumbbell', items: [['18:00', 'Aquecimento'], ['18:15', 'Treino'], ['19:00', 'Alongamento']] },
 };
 
 export function routineForm(r = null) {
@@ -136,15 +137,15 @@ export function routineForm(r = null) {
     hint: r ? '' : 'Você pode ter várias rotinas, cada uma em seus dias da semana.',
     fields: [
       { name: 'name', label: 'Nome', required: true, placeholder: 'Ex.: Manhã, Noite, Dia de treino' },
-      { name: 'emoji', label: 'Emoji', placeholder: '🌅', max: 4 },
+      { name: 'icon', label: 'Ícone', type: 'icons', options: ROUTINE_ICONS, default: 'sunrise' },
       { name: 'days', label: 'Dias em que acontece', type: 'days', required: true, default: [1, 2, 3, 4, 5] },
-      !r && { name: 'tpl', label: 'Começar com modelo', type: 'select', options: [{ v: '', l: 'Em branco' }, ...Object.entries(TEMPLATES).map(([k, t]) => ({ v: k, l: `${t.emoji} ${t.name}` }))] },
+      !r && { name: 'tpl', label: 'Começar com modelo', type: 'select', options: [{ v: '', l: 'Em branco' }, ...Object.entries(TEMPLATES).map(([k, t]) => ({ v: k, l: t.name }))] },
     ].filter(Boolean),
-    values: r || {},
+    values: r ? { ...r, icon: routineIcon(r) } : {},
     onSubmit: v => {
       const o = r || { id: uid(), items: [], log: {}, active: true };
-      Object.assign(o, { name: v.name, emoji: v.emoji || '🌅', days: v.days });
-      if (!r && v.tpl) o.items = TEMPLATES[v.tpl].items.map(([time, title]) => ({ id: uid(), time, title, goalId: null }));
+      Object.assign(o, { name: v.name, icon: v.icon, days: v.days }); delete o.emoji;
+      if (!r && v.tpl) { o.icon = TEMPLATES[v.tpl].icon; o.items = TEMPLATES[v.tpl].items.map(([time, title]) => ({ id: uid(), time, title, goalId: null })); }
       if (!r) state.routines.push(o);
       commit();
     },
@@ -176,12 +177,12 @@ export function areaForm(a = null) {
     title: a ? 'Editar área' : 'Nova área da vida',
     fields: [
       { name: 'name', label: 'Nome', required: true, placeholder: 'Ex.: Espiritualidade' },
-      { name: 'emoji', label: 'Emoji', required: true, placeholder: '✨', max: 4 },
+      { name: 'icon', label: 'Ícone', type: 'icons', options: AREA_ICONS, default: 'sparkle' },
       { name: 'color', label: 'Cor', type: 'swatches', options: ['green', 'blue', 'yellow', 'pink', 'orange', 'purple', 'teal', 'mint', 'indigo', 'brown'].map(c => `var(--sys-${c})`) },
     ],
-    values: a || {},
+    values: a ? { ...a, icon: areaIcon(a) } : {},
     onSubmit: v => {
-      if (a) Object.assign(a, v); else state.areas.push({ id: uid(), ...v });
+      if (a) { Object.assign(a, v); delete a.emoji; } else state.areas.push({ id: uid(), ...v });
       commit();
     },
     onDelete: a && (() => {

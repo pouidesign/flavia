@@ -1,5 +1,6 @@
 import { h, svg, toast } from './ui.js';
 import { state, save, uid } from './store.js';
+import { icon } from './icons.js';
 
 const W = 2600, H = 1800;
 const NOTE_COLORS = ['#fff2a8', '#ffd3dc', '#cfe8ff', '#d6f5d6', '#e6d9ff', '#ffe0c2'];
@@ -29,13 +30,13 @@ export function openBoard(root, board, back) {
     const tb = (k, label, title) => h('button', { class: 'tb' + (tool === k ? ' on' : ''), title, 'aria-label': title, onclick: () => setTool(k) }, label);
     const add = (label, title, fn) => h('button', { class: 'tb add', title, 'aria-label': title, onclick: fn }, label);
     toolbar.replaceChildren(
-      tb('move', '✋', 'Mover / editar'), tb('draw', '✏️', 'Desenhar'), tb('erase', '🧽', 'Borracha'), tb('link', '🔗', 'Ligar itens'),
+      tb('move', icon('cursor'), 'Mover / editar'), tb('draw', icon('pencil'), 'Desenhar'), tb('erase', icon('eraser'), 'Borracha'), tb('link', icon('link'), 'Ligar itens'),
       h('span', { class: 'tb-sep' }),
-      add('🟨 Nota', 'Nova nota', () => addItem({ type: 'note', w: 190, h: 150, color: NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)], text: 'Nota' })),
-      add('🔤 Texto', 'Novo texto', () => addItem({ type: 'text', w: 240, h: 60, color: 'transparent', text: 'Texto' })),
-      add('⭕ Nó', 'Novo nó de mapa', () => addItem({ type: 'node', w: 170, h: 64, color: '#cfe8ff', text: 'Ideia' })),
-      add('🖼️ Imagem', 'Adicionar imagem', () => fileIn.click()),
-      add('🎨 Cor', 'Amostra de cor', () => addItem({ type: 'color', w: 120, h: 120, color: '#' + Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0') })));
+      add([icon('note'), ' Nota'], 'Nova nota', () => addItem({ type: 'note', w: 190, h: 150, color: NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)], text: 'Nota' })),
+      add([icon('text'), ' Texto'], 'Novo texto', () => addItem({ type: 'text', w: 240, h: 60, color: 'transparent', text: 'Texto' })),
+      add([icon('node'), ' Nó'], 'Novo nó de mapa', () => addItem({ type: 'node', w: 170, h: 64, color: '#cfe8ff', text: 'Ideia' })),
+      add([icon('image'), ' Imagem'], 'Adicionar imagem', () => fileIn.click()),
+      add([icon('drop'), ' Cor'], 'Amostra de cor', () => addItem({ type: 'color', w: 120, h: 120, color: '#' + Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0') })));
     if (tool === 'draw') toolbar.append(h('span', { class: 'tb-sep' }), ...PENS.map(c => h('button', { class: 'pen' + (c === pen ? ' on' : ''), style: { background: c }, 'aria-label': 'Cor ' + c, onclick: () => { pen = c; paintTools(); } })),
       h('select', { class: 'select tiny', 'aria-label': 'Espessura', onchange: e => { penW = +e.target.value; } }, [2, 3, 6, 10].map(w => h('option', { value: w, selected: w === penW }, w + 'px'))));
     if (tool === 'link') toolbar.append(h('span', { class: 'cv-hint' }, 'Toque em dois itens para ligá-los'));
@@ -188,7 +189,7 @@ export function openBoard(root, board, back) {
 
   root.replaceChildren(h('div', { class: 'canvas-view' },
     h('div', { class: 'cv-top' },
-      h('button', { class: 'btn ghost', onclick: leave }, '← Canvas'),
+      h('button', { class: 'btn ghost', onclick: leave }, [icon('back'), ' Canvas']),
       h('input', { class: 'cv-name', value: board.name, 'aria-label': 'Nome do canvas', oninput: e => { board.name = e.target.value || 'Sem nome'; save(); } }),
       h('button', { class: 'btn danger sm', onclick: () => { if (confirm('Excluir este canvas?')) { state.boards = state.boards.filter(b => b !== board); leave(); } } }, 'Excluir')),
     toolbar, ctx, scroller, fileIn));

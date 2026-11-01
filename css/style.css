@@ -241,3 +241,23 @@ span.day { width: 28px; height: 28px; font-size: 12px; } .days.ro { margin-botto
 @supports (corner-shape: squircle) {
   .card, .rows, .area-card, .sheet, .daycard, .cell, .menu-item, .cv-scroll, .cv-tools, .mood-btn, .select, .form input, .form textarea, .form select, textarea { corner-shape: squircle; }
 }
+
+/* ---------- Ícones ---------- */
+svg.i { width: 1.15em; height: 1.15em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.2em; }
+.chip svg.i { width: 1em; height: 1em; vertical-align: -.13em; }
+.btn svg.i, .tb svg.i, .subtabs svg.i, .menu-item svg.i { vertical-align: -.22em; }
+.menu-item { display: flex; align-items: center; gap: var(--s-3); }
+.menu-item svg.i { width: 22px; height: 22px; color: var(--tint); }
+.lead-ico, .ev-ico, .area-emoji { display: inline-grid; place-items: center; color: var(--tint); }
+.ev-ico { color: var(--sys-pink); } .area-emoji { color: var(--c); } .row.link .lead-ico { color: var(--label-2); }
+.subtabs svg.i { color: var(--label-2); } .subtabs button.on svg.i { color: var(--tint); }
+.mini svg.i { width: 1em; height: 1em; vertical-align: -.15em; }
+.mood-btn svg.face { color: var(--c); } .mood-btn:not(.on) svg.face { color: var(--label-2); }
+.mood-phase { display: flex; align-items: center; gap: 6px; } .moon-ico { flex: none; }
+.phase-bars .moon-ico { display: block; margin: 0 auto; }
+.icon-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.ip { width: 44px; height: 44px; border: 0; border-radius: var(--r-md); background: var(--bg-cell); color: var(--label-2); display: grid; place-items: center; padding: 0; }
+.ip.on { background: var(--tint); color: var(--tint-ink); }
+.cv-ctx .sw { flex: none; }
+h2 svg.i, h3 svg.i { vertical-align: -.15em; }
+.area-emoji { align-self: flex-start; margin-bottom: 2px; }

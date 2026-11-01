@@ -1,12 +1,13 @@
 import { h } from './ui.js';
+import { icon, areaIcon, routineIcon } from './icons.js';
 import { state, commit } from './store.js';
 import { area, goal, progress, fmtNum } from './data.js';
 import { today, diffDays, fmtBR, fmtShort } from './dates.js';
 import { taskForm, goalForm, progressForm } from './forms.js';
 
 export const chip = (text, color, onclick) => h('span', { class: 'chip', style: { '--c': color || null }, onclick }, text);
-export const areaChip = id => { const a = area(id); return a ? chip(`${a.emoji} ${a.name}`, a.color) : null; };
-export const goalChip = id => { const g = goal(id); return g ? chip(`🎯 ${g.title}`, area(g.areaId)?.color) : null; };
+export const areaChip = id => { const a = area(id); return a ? chip([icon(areaIcon(a)), ' ' + a.name], a.color) : null; };
+export const goalChip = id => { const g = goal(id); return g ? chip([icon('target'), ' ' + g.title], area(g.areaId)?.color) : null; };
 export const bar = (p, color) => h('div', { class: 'bar' }, h('i', { style: { width: Math.round(p * 100) + '%', background: color || 'var(--accent)' } }));
 export const check = (on, fn) => h('button', { class: 'check' + (on ? ' on' : ''), 'aria-pressed': String(!!on), 'aria-label': 'Concluir', onclick: e => { e.stopPropagation(); fn(); } }, on ? '✓' : '');
 export const empty = text => h('p', { class: 'empty' }, text);
@@ -37,10 +38,10 @@ export function goalCard(g) {
   const ritems = state.routines.flatMap(r => r.items.filter(i => i.goalId === g.id).map(i => ({ r, i })));
 
   let status;
-  if (done) status = chip('✅ Concluída', 'var(--success)');
-  else if (left < 0) status = chip(`⏰ Atrasada ${-left}d`, 'var(--danger)');
-  else if (left === 0) status = chip('⏳ Vence hoje', 'var(--warning)');
-  else status = chip(`⏳ ${left} ${left === 1 ? 'dia' : 'dias'} · ${fmtBR(g.deadline)}`);
+  if (done) status = chip([icon('check'), ' Concluída'], 'var(--success)');
+  else if (left < 0) status = chip([icon('warning'), ` Atrasada ${-left}d`], 'var(--danger)');
+  else if (left === 0) status = chip([icon('clock'), ' Vence hoje'], 'var(--warning)');
+  else status = chip([icon('clock'), ` ${left} ${left === 1 ? 'dia' : 'dias'} · ${fmtBR(g.deadline)}`]);
 
   let pace = null;
   if (!done && left >= 0) {
@@ -54,8 +55,8 @@ export function goalCard(g) {
     h('summary', {}, `Vinculado: ${tasks.length} tarefa(s) · ${habits.length} hábito(s) · ${ritems.length} item(ns) de rotina`),
     h('div', { class: 'rows' },
       tasks.length ? tasks.map(t => taskRow(t, { date: true })) : empty('Nenhuma tarefa vinculada ainda.'),
-      habits.map(x => h('div', { class: 'row link' }, h('span', {}, '🔁'), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, x.title)))),
-      ritems.map(({ r, i }) => h('div', { class: 'row link' }, h('span', {}, r.emoji || '🌅'), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, i.title), h('div', { class: 'row-meta' }, chip(r.name)))))));
+      habits.map(x => h('div', { class: 'row link' }, h('span', { class: 'lead-ico' }, icon('repeat', 20)), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, x.title)))),
+      ritems.map(({ r, i }) => h('div', { class: 'row link' }, h('span', { class: 'lead-ico' }, icon(routineIcon(r), 20)), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, i.title), h('div', { class: 'row-meta' }, chip(r.name)))))));
 
   return h('article', { class: 'card goal' + (done ? ' is-done' : ''), style: { '--c': a?.color } },
     h('div', { class: 'goal-top' }, areaChip(g.areaId), status, pace),
