@@ -156,10 +156,23 @@ function chooseImport(full) {
   });
 }
 
+/** Explica, em português claro, por que o texto colado não serve. */
+function explainInvalid(text) {
+  const t = String(text || '').trim(), n = t.length;
+  const show = s => { const start = t.slice(0, 40).replace(/\s+/g, ' '), end = t.slice(-30).replace(/\s+/g, ' ');
+    openModal('Não consegui importar', h('div', { class: 'form' }, h('p', {}, s),
+      n ? h('p', { class: 'muted small' }, `Recebi ${n} caracteres. Começa com “${start}” e termina com “${end}”.`) : null,
+      h('div', { class: 'form-foot' }, h('span', { class: 'grow' }), h('button', { type: 'button', class: 'btn primary', onclick: e => e.target.closest('.overlay').remove() }, 'Entendi')))); };
+  if (!n) return show('Não há nada para importar. Cole o texto primeiro, ou volte à página do pacote e toque em Copiar.');
+  if (t[0] !== '{') return show('O texto colado não parece um backup: ele precisa começar com { . Provavelmente a cópia não funcionou e ficou outra coisa na área de transferência. Volte à página do pacote e toque em Copiar de novo.');
+  try { JSON.parse(t); } catch { return show(t.slice(-1) !== '}' ? 'O texto parece cortado: faltou o final. Copie de novo, por inteiro.' : 'O texto tem algo errado no meio. Copie de novo, por inteiro.'); }
+  return show('O texto é válido, mas não parece um backup deste app.');
+}
+
 async function importBackup(text) {
   let data;
   try { data = JSON.parse(text); if (!data || typeof data !== 'object' || !BACKUP_KEYS.some(k => data[k] && typeof data[k] === 'object')) throw new Error('formato'); }
-  catch { toast('Backup inválido.'); return false; }
+  catch { explainInvalid(text); return false; }
   const choice = await chooseImport(Array.isArray(data.areas) && Array.isArray(data.goals));
   if (choice === 'merge') {
     const a = mergeState(data), n = Object.values(a).reduce((x, y) => x + y, 0);
