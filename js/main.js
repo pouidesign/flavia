@@ -46,6 +46,30 @@ function draw() {
 onChange(draw);
 document.addEventListener('flavia:save-failed', () => toast('Não foi possível salvar: armazenamento cheio. Exporte um backup e libere espaço.'));
 
+/** Copia os dados atuais (o que está salvo agora) para a pessoa colar numa conversa com o Claude. */
+function copyForClaude() {
+  let withImages = false;
+  const build = () => {
+    const d = JSON.parse(JSON.stringify(state));
+    if (!withImages) d.boards.forEach(b => b.items.forEach(i => { if (i.type === 'image') { i.src = ''; i.removida = true; } }));
+    return JSON.stringify(d);
+  };
+  const info = h('p', { class: 'muted small' }), ta = h('textarea', { rows: 5, readOnly: true, 'aria-label': 'Dados para colar no chat', onfocus: e => e.target.select() });
+  const refresh = () => {
+    const t = build(); ta.value = t;
+    info.textContent = `${state.goals.length} metas · ${state.tasks.length} tarefas · ${state.habits.length} hábitos · ${state.notes.length} notas · ${state.home.length} na lista da casa · ${state.shop.length} compras · ${Math.max(1, Math.round(t.length / 1024))} KB`;
+  };
+  const box = h('input', { type: 'checkbox', id: 'cp-img', onchange: e => { withImages = e.target.checked; refresh(); } });
+  refresh();
+  openModal('Copiar para o Claude', h('div', { class: 'form' },
+    h('p', { class: 'hint' }, 'Copia tudo o que está salvo neste aparelho agora. Cole na conversa com o Claude para ele trabalhar com seus dados mais recentes. Só use para enviar: não serve para restaurar o app.'),
+    info,
+    h('label', { class: 'field inline' }, box, h('span', { class: 'lbl' }, 'Incluir imagens do canvas (deixa o texto bem maior)')),
+    ta,
+    h('div', { class: 'form-foot' }, h('span', { class: 'grow' }),
+      h('button', { type: 'button', class: 'btn primary', onclick: async () => { try { await navigator.clipboard.writeText(ta.value); toast('Copiado! Cole na conversa.'); } catch { ta.focus(); ta.select(); toast('Selecione e copie o texto.'); } } }, 'Copiar tudo'))));
+}
+
 function exportBackup() {
   const json = JSON.stringify(state, null, 2);
   const ta = h('textarea', { rows: 8, readOnly: true, value: json, 'aria-label': 'Backup em JSON', onfocus: e => e.target.select() });
@@ -162,6 +186,7 @@ function settings() {
     h('div', {}, h('p', { class: 'muted small', style: { marginBottom: '8px' } }, 'Tamanho do texto'),
       h('div', { class: 'seg', id: 'dt-seg' }, SIZES.map(([v, l]) => h('button', { class: v === getDt() ? 'on' : '', onclick: e => { setDt(v); e.target.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === e.target)); } }, l)))),
     h('p', { class: 'muted small' }, 'Seus dados ficam somente neste dispositivo (navegador). Faça backups de vez em quando.'),
+    h('button', { class: 'btn primary', onclick: copyForClaude }, [icon('upload'), ' Copiar tudo para o Claude']),
     h('button', { class: 'btn', onclick: exportBackup }, [icon('download'), ' Exportar backup']),
     h('button', { class: 'btn', onclick: () => file.click() }, [icon('upload'), ' Importar arquivo']),
     h('button', { class: 'btn', onclick: importPaste }, [icon('upload'), ' Importar colando texto']),
