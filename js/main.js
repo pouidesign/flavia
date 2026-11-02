@@ -1,6 +1,7 @@
 import { h, svg, openModal, toast, ask } from './ui.js';
 import { icon } from './icons.js';
 import * as cloud from './sync.js';
+import { APP_VERSION } from './config.js';
 import { state, onChange, replaceState, resetState, mergeState, BACKUP_KEYS } from './store.js';
 import { renderAgenda } from './agenda.js';
 import { renderPlan } from './plan.js';
@@ -191,6 +192,23 @@ function importPaste() {
       h('button', { type: 'button', class: 'btn primary', onclick: async () => { if (await importBackup(ta.value)) close(); } }, 'Importar'))));
 }
 
+/** Limpa o cache do app e recarrega. Não mexe nos seus dados. */
+async function hardRefresh() {
+  try {
+    const regs = (await navigator.serviceWorker?.getRegistrations?.()) || [];
+    await Promise.all(regs.map(r => r.unregister()));
+    await Promise.all((await caches.keys()).map(k => caches.delete(k)));
+  } catch { /* ignora */ }
+  location.reload();
+}
+
+function showUpdateBanner() {
+  if (document.querySelector('.update-banner')) return;
+  document.body.append(h('div', { class: 'update-banner', role: 'status' },
+    h('span', {}, 'Há uma versão nova do app.'),
+    h('button', { class: 'btn sm primary', onclick: () => location.reload() }, 'Atualizar')));
+}
+
 function settings() {
   const file = h('input', { type: 'file', accept: 'application/json', hidden: true, onchange: async e => {
     const f = e.target.files[0]; e.target.value = ''; if (f) importBackup(await f.text());
@@ -204,6 +222,8 @@ function settings() {
     h('button', { class: 'btn', onclick: () => file.click() }, [icon('upload'), ' Importar arquivo']),
     h('button', { class: 'btn', onclick: importPaste }, [icon('upload'), ' Importar colando texto']),
     h('button', { class: 'btn danger', onclick: async () => { if (await ask('Apagar TUDO? Isso não pode ser desfeito.', 'Apagar') && await ask('Tem certeza absoluta?', 'Apagar tudo')) { resetState(); toast('Tudo apagado.'); } } }, [icon('trash'), ' Apagar tudo']),
+    h('button', { class: 'btn', onclick: hardRefresh }, [icon('repeat'), ' Atualizar o app']),
+    h('p', { class: 'muted small ver' }, `Versão do app: ${APP_VERSION}. Atualizar não apaga seus dados.`),
     file));
 }
 
@@ -214,4 +234,10 @@ draw();
 const paintCloud = () => { const b = document.getElementById('cloud-btn'); if (b) { const s = cloud.getStatus(); b.dataset.s = s.status; b.title = STATUS_TXT[s.status]; } };
 cloud.onStatus(paintCloud); cloud.init(); paintCloud();
 
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  let hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) showUpdateBanner(); hadController = true; });
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+  }).catch(() => {});
+}
