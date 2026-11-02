@@ -1,6 +1,6 @@
-const V = 'minha-vida-v6';
+const V = 'minha-vida-v8';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'css/tokens.css', 'css/style.css', 'design-system.html', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/icon-maskable-512.png',
-  ...['config', 'sync', 'icons', 'agenda', 'areas', 'canvas', 'components', 'data', 'dates', 'forms', 'main', 'mood', 'moon', 'notes', 'plan', 'store', 'ui'].map(n => `js/${n}.js`)];
+  ...['config', 'sync', 'icons', 'agenda', 'areas', 'canvas', 'components', 'data', 'dates', 'forms', 'home', 'main', 'mood', 'moon', 'notes', 'plan', 'store', 'ui'].map(n => `js/${n}.js`)];
 self.addEventListener('install', e => e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', e => {

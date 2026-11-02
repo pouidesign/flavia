@@ -1,7 +1,7 @@
 import { h } from './ui.js';
 import { icon, areaIcon, routineIcon } from './icons.js';
 import { state, commit } from './store.js';
-import { area, goal, progress, fmtNum } from './data.js';
+import { area, goal, progress, fmtNum, isMeasurable } from './data.js';
 import { today, diffDays, fmtBR, fmtShort } from './dates.js';
 import { taskForm, goalForm, progressForm } from './forms.js';
 
@@ -32,19 +32,21 @@ export function taskRow(t, { date = false } = {}) {
 const openGoals = new Set();
 
 export function goalCard(g) {
-  const a = area(g.areaId), p = progress(g), left = diffDays(today(), g.deadline), done = p >= 1;
+  const a = area(g.areaId), p = progress(g), measurable = isMeasurable(g), done = p >= 1;
+  const left = g.deadline ? diffDays(today(), g.deadline) : null;
   const tasks = state.tasks.filter(t => t.goalId === g.id);
   const habits = state.habits.filter(x => x.goalId === g.id);
   const ritems = state.routines.flatMap(r => r.items.filter(i => i.goalId === g.id).map(i => ({ r, i })));
 
   let status;
   if (done) status = chip([icon('check'), ' Concluída'], 'var(--success)');
+  else if (left === null) status = null;
   else if (left < 0) status = chip([icon('warning'), ` Atrasada ${-left}d`], 'var(--danger)');
   else if (left === 0) status = chip([icon('clock'), ' Vence hoje'], 'var(--warning)');
   else status = chip([icon('clock'), ` ${left} ${left === 1 ? 'dia' : 'dias'} · ${fmtBR(g.deadline)}`]);
 
   let pace = null;
-  if (!done && left >= 0) {
+  if (!done && measurable && left !== null && left >= 0) {
     const total = Math.max(1, diffDays(g.created || today(), g.deadline));
     const expected = Math.min(1, diffDays(g.created || today(), today()) / total);
     pace = h('span', { class: 'pace ' + (p + 0.05 >= expected ? 'ok' : 'late') }, p + 0.05 >= expected ? 'no ritmo' : 'abaixo do ritmo');
@@ -62,15 +64,18 @@ export function goalCard(g) {
     h('div', { class: 'goal-top' }, areaChip(g.areaId), status, pace),
     h('h3', { class: 'goal-title' }, g.title),
     h('div', { class: 'goal-prog' },
-      bar(p, a?.color),
-      h('div', { class: 'goal-nums' },
-        h('span', {}, `${fmtNum(g.current)} / ${fmtNum(g.target)} ${g.unit}`),
-        h('b', {}, Math.round(p * 100) + '%'))),
+      measurable ? [bar(p, a?.color),
+        h('div', { class: 'goal-nums' },
+          h('span', {}, `${fmtNum(g.current ?? g.start)} / ${fmtNum(g.target)} ${g.unit || ''}`.trim()),
+          h('b', {}, Math.round(p * 100) + '%'))]
+        : h('p', { class: 'muted small' }, done ? 'Meta concluída.' : 'Meta simples. Quando quiser medir, toque em Editar e preencha unidade e valores.')),
     g.why && h('p', { class: 'why' }, g.why),
     tasks.length ? h('div', { class: 'muted small' }, `Tarefas: ${doneTasks}/${tasks.length} concluídas`) : null,
     det,
     h('div', { class: 'actions' },
-      h('button', { class: 'btn sm primary', onclick: () => progressForm(g) }, 'Atualizar progresso'),
+      measurable
+        ? h('button', { class: 'btn sm primary', onclick: () => progressForm(g) }, 'Atualizar progresso')
+        : h('button', { class: 'btn sm primary', onclick: () => { g.done = !g.done; commit(); } }, done ? 'Reabrir' : 'Concluir meta'),
       h('button', { class: 'btn sm', onclick: () => taskForm(null, { goalId: g.id }) }, '+ Tarefa'),
       h('button', { class: 'btn sm ghost', onclick: () => goalForm(g) }, 'Editar')));
 }

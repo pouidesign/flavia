@@ -44,6 +44,11 @@ const D = {
   bulb: '<path d="M9 18h6M10 21h4M12 3.5a5.5 5.5 0 0 0-3 10.2V16h6v-2.3A5.5 5.5 0 0 0 12 3.5z"/>',
   dumbbell: '<path d="M6.5 8v8M17.5 8v8M3.5 10v4M20.5 10v4M6.5 12h11"/>',
   cloud: '<path d="M7.5 18.5a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18.4 10 4.2 4.2 0 0 1 17.5 18.5z"/>',
+  bag: '<path d="M6 8h12l-1 11.5H7zM9 8V6.5a3 3 0 0 1 6 0V8"/>',
+  up: '<path d="M6.5 14.5L12 9l5.5 5.5"/>',
+  down: '<path d="M6.5 9.5L12 15l5.5-5.5"/>',
+  top: '<path d="M6 5h12M12 19V9M7.5 13.5L12 9l4.5 4.5"/>',
+  list: '<path d="M9 7h10M9 12h10M9 17h10M5 7h.01M5 12h.01M5 17h.01"/>',
   calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
   compass: '<circle cx="12" cy="12" r="8.5"/><path d="M15.8 8.2l-2 5.6-5.6 2 2-5.6z"/>',
 };

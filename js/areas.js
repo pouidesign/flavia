@@ -1,10 +1,11 @@
 import { h, svg } from './ui.js';
 import { icon, areaIcon, routineIcon } from './icons.js';
 import { state, commit } from './store.js';
-import { progress } from './data.js';
+import { progress, byDeadline } from './data.js';
 import { check, goalCard, taskRow, section, empty, chip } from './components.js';
 import { areaForm, goalForm, taskForm } from './forms.js';
 import { today } from './dates.js';
+import { homeSection, homePending } from './home.js';
 
 let current = null, host;
 
@@ -30,7 +31,7 @@ function overview() {
       h('button', { class: 'btn', onclick: () => areaForm() }, '+ Nova área')),
     h('div', { class: 'area-grid' }, state.areas.map(a => {
       const goals = state.goals.filter(g => g.areaId === a.id), active = goals.filter(g => progress(g) < 1);
-      const pend = state.tasks.filter(t => !t.done && (t.goalId ? state.goals.find(g => g.id === t.goalId)?.areaId === a.id : t.areaId === a.id)).length;
+      const pend = state.tasks.filter(t => !t.done && (t.goalId ? state.goals.find(g => g.id === t.goalId)?.areaId === a.id : t.areaId === a.id)).length + (a.id === 'casa' ? homePending() : 0);
       const p = avg(goals);
       return h('button', { class: 'area-card', style: { '--c': a.color }, onclick: () => { current = a.id; renderAreas(host); } },
         h('span', { class: 'area-emoji' }, icon(areaIcon(a), 30)),
@@ -42,7 +43,7 @@ function overview() {
 
 function detail(a) {
   const goals = state.goals.filter(g => g.areaId === a.id);
-  const active = goals.filter(g => progress(g) < 1).sort((x, y) => x.deadline < y.deadline ? -1 : 1), done = goals.filter(g => progress(g) >= 1);
+  const active = goals.filter(g => progress(g) < 1).sort(byDeadline), done = goals.filter(g => progress(g) >= 1);
   const inArea = it => (it.goalId ? state.goals.find(g => g.id === it.goalId)?.areaId : it.areaId) === a.id;
   const tasks = state.tasks.filter(t => !t.done && inArea(t)).sort((x, y) => (x.date || '9999') < (y.date || '9999') ? -1 : 1);
   const habits = state.habits.filter(inArea);
@@ -54,6 +55,7 @@ function detail(a) {
       h('button', { class: 'btn ghost', onclick: () => areaForm(a) }, 'Editar')),
     h('div', { class: 'area-summary card' }, ring(avg(goals), a.color, Math.round(avg(goals) * 100) + '%'),
       h('div', {}, h('b', {}, `${active.length} meta(s) ativa(s)`), h('div', { class: 'muted small' }, `${done.length} concluída(s) · ${tasks.length} tarefa(s) pendente(s) · ${habits.length} hábito(s)`))),
+    a.id === 'casa' ? homeSection() : null,
     section('Metas', active.length ? [h('div', { class: 'grid' }, active.map(g => goalCard(g)))] : [empty('Nenhuma meta ativa nesta área.')],
       h('button', { class: 'btn sm primary', onclick: () => goalForm(null, { areaId: a.id }) }, '+ Meta')),
     tasks.length ? section('Tarefas pendentes', tasks.map(t => taskRow(t, { date: true })), h('button', { class: 'btn sm', onclick: () => taskForm(null, { areaId: a.id }) }, '+ Tarefa')) : null,

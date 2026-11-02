@@ -2,7 +2,7 @@ import { h } from './ui.js';
 import { icon, routineIcon } from './icons.js';
 import { state, commit } from './store.js';
 import { today, addDays, parse } from './dates.js';
-import { progress, streak, habitDue } from './data.js';
+import { progress, streak, habitDue, byDeadline, routineDue } from './data.js';
 import { check, chip, goalChip, areaChip, goalCard, taskRow, segmented, section, empty } from './components.js';
 import { goalForm, taskForm, habitForm, routineForm, routineItemForm } from './forms.js';
 
@@ -20,7 +20,7 @@ export function renderPlan(root) {
 const head = (text, label, fn) => h('div', { class: 'view-head' }, h('p', { class: 'muted' }, text), h('button', { class: 'btn primary', onclick: fn }, label));
 
 function goalsView() {
-  const active = state.goals.filter(g => progress(g) < 1).sort((a, b) => a.deadline < b.deadline ? -1 : 1);
+  const active = state.goals.filter(g => progress(g) < 1).sort(byDeadline);
   const done = state.goals.filter(g => progress(g) >= 1);
   return h('div', {},
     head('Metas mensuráveis, com prazo. Tudo o que você faz se liga a uma meta.', '+ Nova meta', () => goalForm()),
@@ -64,11 +64,11 @@ function routinesView() {
     state.routines.length ? h('div', { class: 'grid' }, state.routines.map(r => {
       const items = [...r.items].sort((a, b) => (a.time || '99') < (b.time || '99') ? -1 : 1);
       const log = r.log[today()] || {};
-      const onToday = r.days.includes(parse(today()).getDay());
+      const onToday = routineDue(r, today());
       return h('article', { class: 'card routine' + (r.active === false ? ' off' : '') },
         h('div', { class: 'habit-top' }, h('h3', {}, icon(routineIcon(r), 20), ' ', r.name),
           h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: r.active !== false, onchange: e => { r.active = e.target.checked; commit(); } }), h('span', {}, 'ativa'))),
-        h('div', { class: 'days ro' }, LET.map((l, i) => h('span', { class: 'day' + (r.days.includes(i) ? ' on' : '') }, l))),
+        h('div', { class: 'days ro' }, LET.map((l, i) => h('span', { class: 'day' + ((!r.days?.length || r.days.includes(i)) ? ' on' : '') }, l))),
         h('div', { class: 'rows' }, items.length ? items.map(i => h('div', { class: 'row' + (onToday && log[i.id] ? ' done' : '') },
           onToday ? check(log[i.id], () => { r.log[today()] = r.log[today()] || {}; r.log[today()][i.id] ? delete r.log[today()][i.id] : (r.log[today()][i.id] = true); commit(); }) : h('span', { class: 'time' }, i.time || '·'),
           h('div', { class: 'row-main', onclick: () => routineItemForm(r, i) },
