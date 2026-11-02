@@ -49,6 +49,7 @@ const D = {
   down: '<path d="M6.5 9.5L12 15l5.5-5.5"/>',
   top: '<path d="M6 5h12M12 19V9M7.5 13.5L12 9l4.5 4.5"/>',
   list: '<path d="M9 7h10M9 12h10M9 17h10M5 7h.01M5 12h.01M5 17h.01"/>',
+  cart: '<path d="M5 7h14l-1.4 8.5a2 2 0 0 1-2 1.7H8.4a2 2 0 0 1-2-1.6L5 7zM5 7l-.7-2.5H2.5"/><circle cx="9" cy="20" r="1"/><circle cx="16" cy="20" r="1"/>',
   calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
   compass: '<circle cx="12" cy="12" r="8.5"/><path d="M15.8 8.2l-2 5.6-5.6 2 2-5.6z"/>',
 };

@@ -307,3 +307,15 @@ h2 svg.i, h3 svg.i { vertical-align: -.15em; }
 .mv { display: flex; flex: none; }
 .icon-btn.sm { width: 34px; height: 34px; font-size: 18px; }
 .prio-note { margin: 0 var(--s-2) var(--s-2); }
+
+/* ---------- Concluídos (lista separada, visível) e Compras ---------- */
+.done-block { margin-top: var(--s-4); }
+.done-block > summary { cursor: pointer; font: var(--type-footnote); text-transform: uppercase; letter-spacing: .03em; color: var(--label-2); padding: var(--s-1) var(--s-4); min-height: 32px; display: flex; align-items: center; }
+.done-block > .rows { margin-top: var(--s-2); }
+.done-block .row { opacity: .75; }
+.cat-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); margin-bottom: var(--s-2); }
+.cat-head .hg-head { margin-bottom: 0; flex: 1; }
+.cat-head .icon-btn { font-size: 24px; flex: none; }
+.shop-row { align-items: flex-start; } .shop-note { margin-top: 2px; overflow-wrap: anywhere; }
+.shop-row .icon-btn.sm { flex: none; }
+.view-shop .hgroup { margin-bottom: var(--s-5); }

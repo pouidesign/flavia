@@ -3,10 +3,10 @@ import { icon, routineIcon } from './icons.js';
 import { state, commit } from './store.js';
 import { today, addDays, parse } from './dates.js';
 import { progress, streak, habitDue, byDeadline, routineDue } from './data.js';
-import { check, chip, goalChip, areaChip, goalCard, taskRow, segmented, section, empty } from './components.js';
+import { check, chip, goalChip, areaChip, goalCard, taskRow, segmented, section, empty, doneBlock, newestFirst } from './components.js';
 import { goalForm, taskForm, habitForm, routineForm, routineItemForm } from './forms.js';
 
-let sub = 'goals', tFilter = 'pending', tGoal = 'all', host;
+let sub = 'goals', tGoal = 'all', host;
 const LET = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
 export function renderPlan(root) {
@@ -30,17 +30,19 @@ function goalsView() {
 }
 
 function tasksView() {
-  let list = state.tasks.filter(t => tFilter === 'all' || (tFilter === 'pending' ? !t.done : t.done));
+  let list = state.tasks;
   if (tGoal === 'none') list = list.filter(t => !t.goalId); else if (tGoal !== 'all') list = list.filter(t => t.goalId === tGoal);
-  list.sort((a, b) => (a.date || '9999') < (b.date || '9999') ? -1 : 1);
-  const sel = h('select', { class: 'select', onchange: e => { tGoal = e.target.value; renderPlan(host); } },
+  const pend = list.filter(t => !t.done).sort((a, b) => (a.date || '9999') < (b.date || '9999') ? -1 : 1);
+  const fin = list.filter(t => t.done).sort(newestFirst);
+  const sel = h('select', { class: 'select', 'aria-label': 'Filtrar por meta', onchange: e => { tGoal = e.target.value; renderPlan(host); } },
     h('option', { value: 'all', selected: tGoal === 'all' }, 'Todas as metas'),
     h('option', { value: 'none', selected: tGoal === 'none' }, 'Avulsas (sem meta)'),
     state.goals.map(g => h('option', { value: g.id, selected: tGoal === g.id }, g.title)));
   return h('div', {},
-    head('Cada tarefa mostra a meta a que pertence.', '+ Nova tarefa', () => taskForm(null, tGoal !== 'all' && tGoal !== 'none' ? { goalId: tGoal } : {})),
-    h('div', { class: 'toolbar' }, segmented([['pending', 'Pendentes'], ['done', 'Feitas'], ['all', 'Todas']], tFilter, k => { tFilter = k; renderPlan(host); }), sel),
-    h('div', { class: 'rows' }, list.length ? list.map(t => taskRow(t, { date: true })) : empty('Nada por aqui.')));
+    head('Toque na bolinha para concluir. O item é riscado e vai para Concluídas.', '+ Nova tarefa', () => taskForm(null, tGoal !== 'all' && tGoal !== 'none' ? { goalId: tGoal } : {})),
+    h('div', { class: 'toolbar' }, sel),
+    h('div', { class: 'rows' }, pend.length ? pend.map(t => taskRow(t, { date: true })) : empty(fin.length ? 'Nada pendente. Bom trabalho!' : 'Nenhuma tarefa ainda.')),
+    doneBlock('plan-done', 'Concluídas', fin.map(t => taskRow(t, { date: true }))));
 }
 
 function habitsView() {

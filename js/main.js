@@ -5,11 +5,12 @@ import { state, onChange, replaceState, resetState } from './store.js';
 import { renderAgenda } from './agenda.js';
 import { renderPlan } from './plan.js';
 import { renderAreas } from './areas.js';
+import { renderShop } from './shop.js';
 import { renderNotes } from './notes.js';
 import { renderMood } from './mood.js';
 
 const TABS = [
-  ['agenda', 'agenda', 'Agenda', renderAgenda], ['plan', 'plan', 'Planejar', renderPlan], ['areas', 'areas', 'Áreas', renderAreas],
+  ['agenda', 'agenda', 'Agenda', renderAgenda], ['plan', 'plan', 'Planejar', renderPlan], ['areas', 'areas', 'Áreas', renderAreas], ['shop', 'shop', 'Compras', renderShop],
   ['notes', 'notes', 'Notas', renderNotes], ['mood', 'mood', 'Humor', renderMood],
 ];
 /* Ícones de traço no estilo SF Symbols (grade 24) */
@@ -18,6 +19,7 @@ const ICONS = {
   plan: () => [svg('circle', { cx: 12, cy: 12, r: 8.5 }), svg('circle', { cx: 12, cy: 12, r: 4.5, class: 'fl' }), svg('circle', { cx: 12, cy: 12, r: .8 })],
   areas: () => [svg('circle', { cx: 12, cy: 12, r: 8.5 }), svg('path', { class: 'fl', d: 'M15.8 8.2l-2 5.6-5.6 2 2-5.6z' })],
   notes: () => [svg('path', { d: 'M11 4H7.5A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5V13' }), svg('path', { class: 'fl', d: 'M18.2 3.6l2.2 2.2-8.2 8.2-3 .8.8-3z' })],
+  shop: () => [svg('path', { class: 'fl', d: 'M5 7h14l-1.4 8.5a2 2 0 0 1-2 1.7H8.4a2 2 0 0 1-2-1.6L5 7z' }), svg('path', { d: 'M5 7l-.7-2.5H2.5' }), svg('circle', { cx: 9, cy: 20, r: 1 }), svg('circle', { cx: 16, cy: 20, r: 1 })],
   mood: () => [svg('path', { class: 'fl', d: 'M20 14.2A8.3 8.3 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2z' })],
 };
 const tabIcon = k => svg('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true' }, ICONS[k]());

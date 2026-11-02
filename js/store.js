@@ -14,6 +14,7 @@ const defaults = () => ({
   ],
   goals: [], tasks: [], events: [], habits: [], routines: [],
   notes: [], journal: {}, boards: [], moods: {},
+  shop: [], shopCats: ['Dia a dia da casa', 'Roupas', 'Casa (móveis e decoração)', 'Festa (pet)', 'Beleza e saúde', 'Presentes'],
   home: [], homeGroups: ['Limpeza', 'Festa', 'Área externa', 'Dentro de casa', 'Compras e serviços'],
 });
 
@@ -32,7 +33,7 @@ let saveHook = null;
 export function setSaveHook(f) { saveHook = f; }
 /** Há algum dado do usuário (além do padrão)? */
 export function hasData() {
-  return ['goals', 'tasks', 'events', 'habits', 'routines', 'notes', 'boards', 'home'].some(k => state[k]?.length)
+  return ['goals', 'tasks', 'events', 'habits', 'routines', 'notes', 'boards', 'home', 'shop'].some(k => state[k]?.length)
     || Object.keys(state.moods || {}).length > 0 || Object.keys(state.journal || {}).length > 0;
 }
 

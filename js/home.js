@@ -3,7 +3,7 @@
 import { h, openForm, ask, toast } from './ui.js';
 import { state, commit, uid } from './store.js';
 import { icon } from './icons.js';
-import { bar, empty, chip, segmented } from './components.js';
+import { bar, empty, chip, segmented, doneBlock } from './components.js';
 
 const STAGES = [{ k: 'falta', l: 'Falta' }, { k: 'comprado', l: 'Comprado' }, { k: 'pronto', l: 'Pronto' }];
 const stageIdx = it => Math.max(0, STAGES.findIndex(s => s.k === it.stage));
@@ -122,13 +122,14 @@ export function homeSection() {
     body = h('div', {},
       h('p', { class: 'muted small prio-note' }, 'Do mais importante (1) para o menos importante. Toque em "Ordenar" para mudar a ordem.'),
       open.length ? h('div', { class: 'rows' }, open.map((it, i) => itemRow(it, open, i + 1))) : empty('Tudo pronto! Casa arrumadinha.'),
-      done.length ? h('details', { class: 'goal-det' }, h('summary', {}, `Prontos (${done.length})`), h('div', { class: 'rows' }, done.map(it => itemRow(it, done)))) : null);
+      doneBlock('home-prio-done', 'Prontos', done.map(it => itemRow(it, done))));
   } else {
     body = h('div', {}, groups().map(g => {
-      const list = byOrder(all.filter(i => i.group === g)), r = list.filter(i => i.stage === 'pronto').length;
+      const list = byOrder(all.filter(i => i.group === g)), pend = list.filter(i => i.stage !== 'pronto'), fin = list.filter(i => i.stage === 'pronto');
       return h('div', { class: 'hgroup' },
-        h('button', { class: 'hg-head', onclick: () => groupForm(g) }, h('span', {}, g), h('span', { class: 'muted small' }, `${r}/${list.length}`)),
-        list.length ? h('div', { class: 'rows' }, list.map(it => itemRow(it, list))) : h('div', { class: 'rows' }, empty('Sem itens neste grupo.')));
+        h('button', { class: 'hg-head', onclick: () => groupForm(g) }, h('span', {}, g), h('span', { class: 'muted small' }, `${fin.length}/${list.length}`)),
+        pend.length ? h('div', { class: 'rows' }, pend.map(it => itemRow(it, pend))) : (list.length ? null : h('div', { class: 'rows' }, empty('Sem itens neste grupo.'))),
+        doneBlock('home-done-' + g, 'Prontos', fin.map(it => itemRow(it, fin))));
     }));
   }
   return h('section', { class: 'sec home' }, head, card, body);

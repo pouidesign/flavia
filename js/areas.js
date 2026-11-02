@@ -2,7 +2,7 @@ import { h, svg } from './ui.js';
 import { icon, areaIcon, routineIcon } from './icons.js';
 import { state, commit } from './store.js';
 import { progress, byDeadline } from './data.js';
-import { check, goalCard, taskRow, section, empty, chip } from './components.js';
+import { check, goalCard, taskRow, section, empty, chip, doneBlock, newestFirst } from './components.js';
 import { areaForm, goalForm, taskForm } from './forms.js';
 import { today } from './dates.js';
 import { homeSection, homePending } from './home.js';
@@ -46,6 +46,7 @@ function detail(a) {
   const active = goals.filter(g => progress(g) < 1).sort(byDeadline), done = goals.filter(g => progress(g) >= 1);
   const inArea = it => (it.goalId ? state.goals.find(g => g.id === it.goalId)?.areaId : it.areaId) === a.id;
   const tasks = state.tasks.filter(t => !t.done && inArea(t)).sort((x, y) => (x.date || '9999') < (y.date || '9999') ? -1 : 1);
+  const finTasks = state.tasks.filter(t => t.done && inArea(t)).sort(newestFirst);
   const habits = state.habits.filter(inArea);
   const ritems = state.routines.flatMap(r => r.items.filter(i => i.goalId && state.goals.find(g => g.id === i.goalId)?.areaId === a.id).map(i => ({ r, i })));
   return h('div', { class: 'area-detail', style: { '--c': a.color } },
@@ -59,6 +60,7 @@ function detail(a) {
     section('Metas', active.length ? [h('div', { class: 'grid' }, active.map(g => goalCard(g)))] : [empty('Nenhuma meta ativa nesta área.')],
       h('button', { class: 'btn sm primary', onclick: () => goalForm(null, { areaId: a.id }) }, '+ Meta')),
     tasks.length ? section('Tarefas pendentes', tasks.map(t => taskRow(t, { date: true })), h('button', { class: 'btn sm', onclick: () => taskForm(null, { areaId: a.id }) }, '+ Tarefa')) : null,
+    doneBlock('area-done-' + a.id, 'Tarefas concluídas', finTasks.map(t => taskRow(t, { date: true }))),
     habits.length ? section('Hábitos', habits.map(x => h('div', { class: 'row link' }, h('span', { class: 'lead-ico' }, icon('repeat', 20)), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, x.title))))) : null,
     ritems.length ? section('Rotinas ligadas às metas', ritems.map(({ r, i }) => h('div', { class: 'row link' }, h('span', { class: 'lead-ico' }, icon(routineIcon(r), 20)), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, i.title), h('div', { class: 'row-meta' }, chip(r.name)))))) : null,
     done.length ? section([icon('trophy'), ' Concluídas'], [h('div', { class: 'grid' }, done.map(g => goalCard(g)))]) : null);

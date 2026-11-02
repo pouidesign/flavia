@@ -16,6 +16,13 @@ export const section = (title, children, action) => h('section', { class: 'sec' 
 export const segmented = (opts, cur, fn) => h('div', { class: 'seg', role: 'tablist' },
   opts.map(([k, l]) => h('button', { class: k === cur ? 'on' : '', role: 'tab', 'aria-selected': String(k === cur), onclick: () => fn(k) }, l)));
 
+const closedBlocks = new Set();
+/** Lista separada de concluídos: sempre visível (aberta), mas pode ser recolhida. */
+export const doneBlock = (key, label, rows) => rows.length ? h('details', { class: 'done-block', open: !closedBlocks.has(key),
+  ontoggle: e => { e.target.open ? closedBlocks.delete(key) : closedBlocks.add(key); } },
+  h('summary', {}, `${label} (${rows.length})`), h('div', { class: 'rows' }, rows)) : null;
+export const newestFirst = (a, b) => (b.doneAt || 0) - (a.doneAt || 0);
+
 export function taskRow(t, { date = false } = {}) {
   const meta = [];
   if (date && t.date) meta.push(h('span', { class: 'time' }, fmtShort(t.date)));
@@ -24,7 +31,7 @@ export function taskRow(t, { date = false } = {}) {
   else if (t.areaId) meta.push(areaChip(t.areaId), chip('avulsa'));
   else meta.push(chip('avulsa'));
   return h('div', { class: 'row' + (t.done ? ' done' : '') },
-    check(t.done, () => { t.done = !t.done; commit(); }),
+    check(t.done, () => { t.done = !t.done; t.doneAt = t.done ? Date.now() : null; commit(); }),
     h('div', { class: 'row-main', onclick: () => taskForm(t) },
       h('div', { class: 'row-title' }, t.title), h('div', { class: 'row-meta' }, meta)));
 }
@@ -56,7 +63,7 @@ export function goalCard(g) {
   const det = h('details', { class: 'goal-det', open: openGoals.has(g.id), ontoggle: e => { e.target.open ? openGoals.add(g.id) : openGoals.delete(g.id); } },
     h('summary', {}, `Vinculado: ${tasks.length} tarefa(s) · ${habits.length} hábito(s) · ${ritems.length} item(ns) de rotina`),
     h('div', { class: 'rows' },
-      tasks.length ? tasks.map(t => taskRow(t, { date: true })) : empty('Nenhuma tarefa vinculada ainda.'),
+      tasks.length ? [...tasks.filter(t => !t.done), ...tasks.filter(t => t.done).sort(newestFirst)].map(t => taskRow(t, { date: true })) : empty('Nenhuma tarefa vinculada ainda.'),
       habits.map(x => h('div', { class: 'row link' }, h('span', { class: 'lead-ico' }, icon('repeat', 20)), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, x.title)))),
       ritems.map(({ r, i }) => h('div', { class: 'row link' }, h('span', { class: 'lead-ico' }, icon(routineIcon(r), 20)), h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, i.title), h('div', { class: 'row-meta' }, chip(r.name)))))));
 

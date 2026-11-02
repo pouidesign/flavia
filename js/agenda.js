@@ -3,7 +3,7 @@ import { icon, routineIcon } from './icons.js';
 import { state, commit } from './store.js';
 import { today, addDays, addMonths, startOfWeek, startOfMonth, parse, iso, fmtLong, fmtMonth, fmtShort, daysInMonth, WD_SHORT } from './dates.js';
 import { dayItems, ageOn, habitDue, streak } from './data.js';
-import { check, chip, goalChip, areaChip, taskRow, segmented, section, empty } from './components.js';
+import { check, chip, goalChip, areaChip, taskRow, segmented, section, empty, doneBlock, newestFirst } from './components.js';
 import { taskForm, eventForm } from './forms.js';
 
 let view = 'day', cursor = today(), host;
@@ -88,7 +88,9 @@ function dayBody(d = cursor) {
   const out = [];
   if (it.events.length) out.push(section('Compromissos e datas', it.events.map(e => eventRow(e, d))));
   if (overdue.length) out.push(section([icon('warning'), ' Atrasadas'], overdue.map(t => taskRow(t, { date: true }))));
-  out.push(section('Tarefas', it.tasks.length ? it.tasks.map(t => taskRow(t)) : [empty('Nenhuma tarefa neste dia.')]));
+  const pend = it.tasks.filter(t => !t.done), fin = it.tasks.filter(t => t.done).sort(newestFirst);
+  out.push(section('Tarefas', pend.length ? pend.map(t => taskRow(t)) : [empty(fin.length ? 'Tudo feito neste dia.' : 'Nenhuma tarefa neste dia.')]));
+  if (fin.length) out.push(doneBlock('agenda-' + d, 'Concluídas', fin.map(t => taskRow(t))));
   if (it.habits.length) out.push(section('Hábitos', it.habits.map(x => h('div', { class: 'row' + (x.log[d] ? ' done' : '') },
     check(x.log[d], () => { x.log[d] ? delete x.log[d] : (x.log[d] = true); commit(); }),
     h('div', { class: 'row-main' }, h('div', { class: 'row-title' }, x.title),
