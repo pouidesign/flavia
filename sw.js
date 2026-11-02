@@ -1,4 +1,4 @@
-const V = 'minha-vida-v9';
+const V = 'minha-vida-v10';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'css/tokens.css', 'css/style.css', 'design-system.html', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/icon-maskable-512.png',
   ...['config', 'sync', 'icons', 'agenda', 'areas', 'canvas', 'components', 'data', 'dates', 'forms', 'home', 'shop', 'main', 'mood', 'moon', 'notes', 'plan', 'store', 'ui'].map(n => `js/${n}.js`)];
 self.addEventListener('install', e => e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));

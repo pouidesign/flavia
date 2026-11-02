@@ -1,7 +1,7 @@
 import { h, svg, openModal, toast, ask } from './ui.js';
 import { icon } from './icons.js';
 import * as cloud from './sync.js';
-import { state, onChange, replaceState, resetState } from './store.js';
+import { state, onChange, replaceState, resetState, mergeState, BACKUP_KEYS } from './store.js';
 import { renderAgenda } from './agenda.js';
 import { renderPlan } from './plan.js';
 import { renderAreas } from './areas.js';
@@ -117,11 +117,32 @@ cloud.setConflictHandler(({ local, cloud: remote }) => new Promise(resolve => {
       h('button', { type: 'button', class: 'btn primary', onclick: () => finish('cloud') }, 'Manter a nuvem'))));
 }));
 
+function chooseImport(full) {
+  return new Promise(resolve => {
+    let done = false, close = () => {};
+    const finish = v => { if (done) return; done = true; close(); resolve(v); };
+    close = openModal('Como importar?', h('div', { class: 'form' },
+      h('p', {}, h('b', {}, 'Juntar'), ' adiciona só o que ainda não existe e mantém tudo o que você já tem.'),
+      full ? h('p', {}, h('b', {}, 'Substituir'), ' apaga tudo (e, com login, os dados da nuvem) e coloca o backup no lugar.') : null,
+      h('div', { class: 'form-foot' },
+        h('button', { type: 'button', class: 'btn ghost', onclick: () => finish(null) }, 'Cancelar'),
+        h('span', { class: 'grow' }),
+        full ? h('button', { type: 'button', class: 'btn danger', onclick: () => finish('replace') }, 'Substituir tudo') : null,
+        h('button', { type: 'button', class: 'btn primary', onclick: () => finish('merge') }, 'Juntar'))));
+  });
+}
+
 async function importBackup(text) {
   let data;
-  try { data = JSON.parse(text); if (!data.areas || !data.goals) throw new Error('formato'); } catch { toast('Backup inválido.'); return false; }
-  if (!await ask('Importar vai substituir TODOS os dados atuais (e, com login, os da nuvem). Continuar?', 'Substituir')) return false;
-  replaceState(data); toast('Backup importado.'); return true;
+  try { data = JSON.parse(text); if (!data || typeof data !== 'object' || !BACKUP_KEYS.some(k => data[k] && typeof data[k] === 'object')) throw new Error('formato'); }
+  catch { toast('Backup inválido.'); return false; }
+  const choice = await chooseImport(Array.isArray(data.areas) && Array.isArray(data.goals));
+  if (choice === 'merge') {
+    const a = mergeState(data), n = Object.values(a).reduce((x, y) => x + y, 0);
+    toast(n ? `${n} itens adicionados.` : 'Nada novo: isso já estava no app.'); return true;
+  }
+  if (choice === 'replace') { replaceState(data); toast('Backup importado.'); return true; }
+  return false;
 }
 
 function importPaste() {

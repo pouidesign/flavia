@@ -51,4 +51,24 @@ export function replaceState(next) {
   Object.assign(state, defaults(), next);
   commit();
 }
+const ARR = ['areas', 'goals', 'tasks', 'events', 'habits', 'routines', 'notes', 'boards', 'home', 'shop'];
+export const BACKUP_KEYS = [...ARR, 'homeGroups', 'shopCats', 'journal', 'moods'];
+/** Junta um pacote ao que já existe, sem apagar nada. Retorna quantos itens novos entraram por tipo. */
+export function mergeState(extra) {
+  const added = {};
+  for (const k of ARR) {
+    if (!Array.isArray(extra[k])) continue;
+    const mine = state[k] || [], have = new Set(mine.map(x => x.id));
+    const fresh = extra[k].filter(x => x && !have.has(x.id));
+    if (fresh.some(x => typeof x.order === 'number')) {
+      const base = Math.max(-1, ...mine.map(x => x.order ?? -1)) + 1;
+      fresh.forEach((x, i) => { x.order = base + i; });
+    }
+    state[k] = [...mine, ...fresh]; added[k] = fresh.length;
+  }
+  for (const k of ['homeGroups', 'shopCats']) if (Array.isArray(extra[k])) state[k] = [...new Set([...(state[k] || []), ...extra[k]])];
+  for (const k of ['journal', 'moods']) if (extra[k] && typeof extra[k] === 'object') for (const [d, v] of Object.entries(extra[k])) if (!(d in state[k])) state[k][d] = v;
+  commit();
+  return added;
+}
 export function resetState() { replaceState(defaults()); }
