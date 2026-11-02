@@ -17,7 +17,7 @@ export function eventOn(e, date) {
   const yearly = e.type === 'aniversario' || e.yearly;
   return !!(yearly && e.date.slice(5) === date.slice(5) && e.date.slice(0, 4) <= date.slice(0, 4));
 }
-export const ageOn = (e, date) => +date.slice(0, 4) - +e.date.slice(0, 4);
+export const ageOn = (e, date) => e.noYear ? 0 : +date.slice(0, 4) - +e.date.slice(0, 4);
 
 export const habitDue = (h, date) => (h.days?.length ? h.days : [0, 1, 2, 3, 4, 5, 6]).includes(parse(date).getDay());
 export const routinesOn = date => state.routines.filter(r => r.active !== false && r.days.includes(parse(date).getDay()));

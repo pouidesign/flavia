@@ -40,12 +40,13 @@ export function eventForm(e = null, def = {}) {
       { name: 'date', label: 'Data (aniversário: data de nascimento)', type: 'date', required: true },
       { name: 'time', label: 'Hora', type: 'time' },
       { name: 'yearly', label: 'Repetir todo ano', type: 'checkbox' },
+      { name: 'noYear', label: 'Não sei o ano (não mostrar a idade)', type: 'checkbox' },
       { name: 'note', label: 'Observação', type: 'textarea', rows: 2 },
     ],
     values: e || def,
     onSubmit: v => {
       const o = e || { id: uid() };
-      Object.assign(o, { title: v.title, type: v.type, date: v.date, time: v.time || null, yearly: v.yearly, note: v.note });
+      Object.assign(o, { title: v.title, type: v.type, date: v.date, time: v.time || null, yearly: v.yearly, noYear: v.noYear, note: v.note });
       if (!e) state.events.push(o);
       commit();
     },

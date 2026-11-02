@@ -115,21 +115,33 @@ cloud.setConflictHandler(({ local, cloud: remote }) => new Promise(resolve => {
       h('button', { type: 'button', class: 'btn primary', onclick: () => finish('cloud') }, 'Manter a nuvem'))));
 }));
 
+async function importBackup(text) {
+  let data;
+  try { data = JSON.parse(text); if (!data.areas || !data.goals) throw new Error('formato'); } catch { toast('Backup inválido.'); return false; }
+  if (!await ask('Importar vai substituir TODOS os dados atuais (e, com login, os da nuvem). Continuar?', 'Substituir')) return false;
+  replaceState(data); toast('Backup importado.'); return true;
+}
+
+function importPaste() {
+  const ta = h('textarea', { rows: 8, placeholder: 'Cole aqui o texto do backup…', 'aria-label': 'Texto do backup' });
+  const close = openModal('Importar colando texto', h('div', { class: 'form' },
+    h('p', { class: 'hint' }, 'Cole o texto completo do backup (começa com { e termina com }).'), ta,
+    h('div', { class: 'form-foot' }, h('span', { class: 'grow' }),
+      h('button', { type: 'button', class: 'btn ghost', onclick: () => close() }, 'Cancelar'),
+      h('button', { type: 'button', class: 'btn primary', onclick: async () => { if (await importBackup(ta.value)) close(); } }, 'Importar'))));
+}
+
 function settings() {
   const file = h('input', { type: 'file', accept: 'application/json', hidden: true, onchange: async e => {
-    const f = e.target.files[0]; if (!f) return;
-    try {
-      const data = JSON.parse(await f.text());
-      if (!data.areas || !data.goals) throw new Error('formato');
-      if (await ask('Importar vai substituir TODOS os dados atuais. Continuar?', 'Substituir')) { replaceState(data); toast('Backup importado.'); }
-    } catch { toast('Arquivo inválido.'); }
+    const f = e.target.files[0]; e.target.value = ''; if (f) importBackup(await f.text());
   } });
   openModal('Dados e backup', h('div', { class: 'menu' },
     h('div', {}, h('p', { class: 'muted small', style: { marginBottom: '8px' } }, 'Tamanho do texto'),
       h('div', { class: 'seg', id: 'dt-seg' }, SIZES.map(([v, l]) => h('button', { class: v === getDt() ? 'on' : '', onclick: e => { setDt(v); e.target.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === e.target)); } }, l)))),
     h('p', { class: 'muted small' }, 'Seus dados ficam somente neste dispositivo (navegador). Faça backups de vez em quando.'),
     h('button', { class: 'btn', onclick: exportBackup }, [icon('download'), ' Exportar backup']),
-    h('button', { class: 'btn', onclick: () => file.click() }, [icon('upload'), ' Importar backup']),
+    h('button', { class: 'btn', onclick: () => file.click() }, [icon('upload'), ' Importar arquivo']),
+    h('button', { class: 'btn', onclick: importPaste }, [icon('upload'), ' Importar colando texto']),
     h('button', { class: 'btn danger', onclick: async () => { if (await ask('Apagar TUDO? Isso não pode ser desfeito.', 'Apagar') && await ask('Tem certeza absoluta?', 'Apagar tudo')) { resetState(); toast('Tudo apagado.'); } } }, [icon('trash'), ' Apagar tudo']),
     file));
 }
