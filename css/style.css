@@ -279,3 +279,12 @@ h2 svg.i, h3 svg.i { vertical-align: -.15em; }
 .acc-email { font: var(--type-headline); overflow-wrap: anywhere; }
 .conflict { display: flex; flex-direction: column; gap: 2px; }
 .form-foot .btn { flex: none; }
+
+/* ---------- Formulários: rodapé sempre visível e erros destacados ---------- */
+.form-foot { position: sticky; bottom: 0; z-index: 2; margin: var(--s-2) calc(-1 * var(--s-4)) calc(-1 * var(--s-5)); padding: var(--s-3) var(--s-4) calc(var(--s-4) + env(safe-area-inset-bottom));
+  background: linear-gradient(to bottom, transparent, var(--bg-grouped) 22%); }
+.form-foot { flex-wrap: wrap; }
+.foot-err { flex: 0 0 100%; text-align: center; padding: 0; margin: 0; }
+.foot-err:empty { display: none; }
+.field.has-err input, .field.has-err select, .field.has-err textarea { box-shadow: 0 0 0 2px var(--danger); }
+.field.has-err .lbl { color: var(--danger); }

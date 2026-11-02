@@ -75,6 +75,14 @@ export function sheet(title, options) {
     options.map(o => h('button', { class: 'btn menu-item', onclick: () => { close(); o.fn(); } }, o.label))));
 }
 
+/** "2,5" "2.5" "1.500,75" → número; vazio → null; inválido → NaN. */
+export function parseNum(raw) {
+  const t = String(raw).trim().replace(/\s/g, '');
+  if (!t) return null;
+  const norm = t.includes(',') ? t.replace(/\./g, '').replace(',', '.') : t;
+  return /^-?\d+(\.\d+)?$/.test(norm) ? Number(norm) : NaN;
+}
+
 const DAY_LETTERS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
 export function openForm({ title, fields, values = {}, submit = 'Salvar', onSubmit, onDelete, hint }) {
@@ -120,8 +128,8 @@ export function openForm({ title, fields, values = {}, submit = 'Salvar', onSubm
       getters[f.name] = () => cur;
     } else {
       const num = f.type === 'number';
-      input = h('input', { type: f.type || 'text', value: v, placeholder: f.placeholder || '', step: num ? 'any' : null, inputmode: num ? 'decimal' : null, maxLength: f.max || null });
-      getters[f.name] = () => num ? (input.value === '' ? null : parseFloat(input.value)) : input.value.trim();
+      input = h('input', { type: num ? 'text' : (f.type || 'text'), value: num && v !== '' ? String(v).replace('.', ',') : v, placeholder: f.placeholder || '', inputmode: num ? 'decimal' : null, autocomplete: num ? 'off' : null, maxLength: f.max || null });
+      getters[f.name] = () => num ? parseNum(input.value) : input.value.trim();
     }
     const err = h('small', { class: 'err' });
     errEls[f.name] = err;
@@ -130,27 +138,33 @@ export function openForm({ title, fields, values = {}, submit = 'Salvar', onSubm
   }
 
   const close = openModal(title, form);
-  form.append(h('div', { class: 'form-foot' },
+  const footErr = h('p', { class: 'err foot-err', role: 'alert' });
+  form.append(h('div', { class: 'form-foot' }, footErr,
     onDelete && h('button', { type: 'button', class: 'btn danger', onclick: async () => { if (await ask('Excluir? Isso não pode ser desfeito.')) { close(); onDelete(); } } }, 'Excluir'),
     h('span', { class: 'grow' }),
     h('button', { type: 'button', class: 'btn ghost', onclick: close }, 'Cancelar'),
     h('button', { type: 'submit', class: 'btn primary' }, submit)));
 
+
   form.addEventListener('submit', e => {
     e.preventDefault();
     const vals = {};
     for (const f of fields) vals[f.name] = getters[f.name]();
-    let ok = true;
+    let ok = true, first = null;
     for (const f of fields) {
       const val = vals[f.name];
-      const empty = val === '' || val == null || (Array.isArray(val) && !val.length) || (typeof val === 'number' && isNaN(val));
+      const bad = typeof val === 'number' && isNaN(val);
+      const empty = val === '' || val == null || (Array.isArray(val) && !val.length);
       let msg = '';
-      if (f.required && empty) msg = 'Obrigatório';
+      if (bad) msg = 'Digite apenas números (ex.: 12,5)';
+      else if (f.required && empty) msg = 'Obrigatório';
       else if (!empty && f.validate) msg = f.validate(val, vals) || '';
       errEls[f.name].textContent = msg;
-      if (msg) ok = false;
+      errEls[f.name].closest('.field').classList.toggle('has-err', !!msg);
+      if (msg) { ok = false; first = first || errEls[f.name]; }
     }
-    if (!ok) return;
+    footErr.textContent = ok ? '' : 'Revise os campos em vermelho.';
+    if (!ok) { first.closest('.field').scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     close();
     onSubmit(vals);
   });
