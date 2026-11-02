@@ -62,7 +62,9 @@ function groupForm(name) {
 }
 
 /* ---------- trazer as tarefas soltas da Casa ---------- */
-const movable = () => state.tasks.filter(t => t.areaId === 'casa' && !t.date && !t.goalId && !t.done);
+export const movable = () => state.tasks.filter(t => t.areaId === 'casa' && !t.date && !t.goalId && !t.done);
+/** "Festa · Dar banho" → { group: 'Festa', title: 'Dar banho' } */
+export function splitPrefix(title) { const m = title.match(/^(.+?)\s·\s(.+)$/); return m ? { group: m[1], title: m[2] } : { group: null, title }; }
 async function migrate() {
   const list = movable();
   if (!await ask(`Mover ${list.length} tarefas da Casa (sem data e sem meta) para a Lista da casa? Elas saem da lista de tarefas.`, 'Mover')) return;

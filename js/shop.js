@@ -4,6 +4,7 @@ import { h, openForm, ask, toast } from './ui.js';
 import { state, commit, uid } from './store.js';
 import { icon } from './icons.js';
 import { bar, empty, chip, segmented, doneBlock, newestFirst } from './components.js';
+import { movable, splitPrefix } from './home.js';
 
 let mode = 'categoria', sorting = false, lastCat = '';
 const brl = n => Number(n).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -18,6 +19,36 @@ function move(it, dir, scope) {
   if (dir === 'top') { if (i === 0) return; it.order = s[0].order - 0.5; }
   else { const j = i + dir; if (j < 0 || j >= s.length) return; [it.order, s[j].order] = [s[j].order, it.order]; }
   reindex(); commit();
+}
+
+/* ---------- trazer os itens da casa (sem copiar e colar) ---------- */
+const GROUP_CAT = { 'Festa': 'Festa (pet)', 'Área externa': 'Área externa', 'Dentro de casa': 'Casa (móveis e decoração)', 'Compras e serviços': 'Casa (móveis e decoração)', 'Limpeza': 'Dia a dia da casa' };
+const DIA = /extensor|filtro|vassoura|mosquit|org[aâ]nico|diarista|limpeza|detergente|esponja|papel/i, ROUPA = /costureira|ajustar/i;
+const norm = t => t.trim().toLowerCase().replace(/\s+/g, ' ');
+function catFor(group, title) {
+  if (ROUPA.test(title)) return 'Roupas';
+  let c = GROUP_CAT[group] || group || 'Casa (móveis e decoração)';
+  if (c === 'Casa (móveis e decoração)' && DIA.test(title)) c = 'Dia a dia da casa';
+  return c;
+}
+/** Itens da Lista da casa e tarefas soltas da Casa que ainda não estão em Compras. */
+function bringable() {
+  const have = new Set(state.shop.map(i => norm(i.title))), seen = new Set(), out = [];
+  const src = [...state.home.map(i => ({ title: i.title, group: i.group, done: i.stage !== 'falta' })),
+    ...movable().map(t => { const p = splitPrefix(t.title); return { title: p.title, group: p.group, done: false }; })];
+  for (const s of src) { const k = norm(s.title); if (!k || have.has(k) || seen.has(k)) continue; seen.add(k); out.push({ ...s, cat: catFor(s.group, s.title) }); }
+  return out;
+}
+async function bring() {
+  const list = bringable(), by = {};
+  list.forEach(i => { by[i.cat] = (by[i.cat] || 0) + 1; });
+  const resumo = Object.entries(by).map(([c, n]) => `${c}: ${n}`).join(' · ');
+  if (!await ask(`Trazer ${list.length} ${list.length === 1 ? 'item' : 'itens'} da casa para Compras? (${resumo}). Eles continuam na Lista da casa e nas tarefas.`, 'Trazer')) return;
+  list.forEach(i => {
+    if (!state.shopCats.includes(i.cat)) state.shopCats.push(i.cat);
+    state.shop.push({ id: uid(), title: i.title, cat: i.cat, qty: '', price: null, link: '', note: '', done: i.done, doneAt: i.done ? Date.now() : null, order: state.shop.length });
+  });
+  reindex(); commit(); toast(list.length === 1 ? '1 item adicionado em Compras.' : `${list.length} itens adicionados em Compras.`);
 }
 
 /* ---------- formulários ---------- */
@@ -94,8 +125,10 @@ export function renderShop(root) {
     h('div', { class: 'home-top' }, h('b', {}, all.length ? `Faltam ${pendAll.length} de ${all.length}` : 'Lista de compras'), h('b', {}, pendAll.length && sum(pendAll) ? brl(sum(pendAll)) : '')),
     bar(pct, 'var(--sys-green)'),
     h('p', { class: 'muted small' }, all.length
-      ? `${finAll.length} comprados${sum(finAll) ? ' · ' + brl(sum(finAll)) + ' gastos' : ''}${sum(pendAll) ? ' · ' + brl(sum(pendAll)) + ' ainda estimados' : ''}`
+      ? `${finAll.length} ${finAll.length === 1 ? 'comprado' : 'comprados'}${sum(finAll) ? ' · ' + brl(sum(finAll)) + ' gastos' : ''}${sum(pendAll) ? ' · ' + brl(sum(pendAll)) + ' ainda estimados' : ''}`
       : 'Anote o que precisa comprar e organize por categoria.'),
+    bringable().length ? h('div', { class: 'migrate' }, h('p', { class: 'small' }, `Você tem ${bringable().length} ${bringable().length === 1 ? 'item' : 'itens'} da casa que ainda não ${bringable().length === 1 ? 'está' : 'estão'} aqui.`),
+      h('button', { class: 'btn sm', onclick: bring }, `Trazer ${bringable().length} ${bringable().length === 1 ? 'item' : 'itens'}`)) : null,
     all.length ? h('div', { class: 'toolbar' },
       segmented([['categoria', 'Por categoria'], ['prioridade', 'Prioridade']], mode, k => { mode = k; commit(); }),
       h('button', { class: 'btn sm' + (sorting ? ' primary' : ''), onclick: () => { sorting = !sorting; commit(); } }, [icon('list'), sorting ? ' Pronto' : ' Ordenar'])) : null);
